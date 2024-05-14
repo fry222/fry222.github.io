@@ -1,256 +1,170 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>Interactive Aging Population Trends in the UK</title>
-    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
-    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
+    <meta charset="utf-8">
+    <title>Interactive Map</title>
+    <meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no" />
+    <link href="https://api.mapbox.com/mapbox-gl-js/v3.0.1/mapbox-gl.css" rel="stylesheet">
+    <script src="https://api.mapbox.com/mapbox-gl-js/v3.0.1/mapbox-gl.js"></script>
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,300i,400,400i,600,600i,700,700i|Raleway:300,300i,400,400i,500,500i,600,600i,700,700i" rel="stylesheet">
+    <script src="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v5.0.0/mapbox-gl-geocoder.min.js"></script>
+    <link rel="stylesheet" href="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v5.0.0/mapbox-gl-geocoder.css" type="text/css">
     <style>
-       body, html { 
-            height: 100%; 
-            margin: 0; 
-            padding: 0; 
-        }
-        #map { 
-            height: 100%; 
-            width: 100%;
-        }
-       #control-panel {
-            width: 300px;
-            position: absolute;
-            top: 10px;
-            left: 10px;
-            z-index: 1000;
-            background-color: rgba(255, 255, 255, 0.6);
-            padding: 10px;
-            border-radius: 5px;
-            display: flex;
-            flex-direction: column;
-            align-items: flex-start; /* Aligns content to the left */
-        }
-        #slider-container {
-            width: 100%;
-            margin-top: 20px;
-            text-align: center;
-        }
-        #chart-container {
-            width: 100%;
-            height: 300px;
-        }
-        canvas {
-            width: 100%;
-            height: 300px !important;
-        }
-        #legend {
-            margin-top: 10px;
-        }
-          .legend-item {
-        margin-bottom: 4px; /* 减少条目间的垂直距离 */
-        line-height: 0.6; /* 减少行高以使行间距更紧凑 */
-        display: flex;
-        align-items: center; /* 确保图例颜色块和文本对齐 */
-    }
-        .legend-color {
-            width: 15px;
-            height: 15px;
-            display: inline-block;
-        }
-
-       h2 {
-    margin-top: 10px;    /* 减少上边距 */
-    margin-bottom: 5px;  /* 减少下边距，可根据需要进一步调整 */
-    line-height: 1.1;    /* 减少行高以减小空白区域 */
-    font-weight: bold;
-    text-align: left;
-    font-size: 1em;      /* 可以调整字体大小以适应设计 */
-    padding: 0;          /* 确保没有内边距 */
-}
-        h1 {
-        font-size: 25px; /* 设置较大的字体大小 */
-        font-weight: bold; /* 字体加粗 */
-        color: #333; /* 字体颜色，可根据实际设计调整 */
-        margin: 0 0 0 0; /* 调整上下边距，确保标题与其他元素间的空间 */
-        text-align: center; /* 标题左对齐 */
-    }
-        .instructions {
-            font-size: 0.9em;
-            text-align: left;
-            margin-top: 10px;
-            margin-bottom: 20px;
-        }
-        .resource {
-            font-size: 0.8em;
-            text-align: center;
-            margin-top: 20px;
-        }
+        body { margin: 0; padding: 0; height: 100%; }
+        h2, h3, p { margin: 10px; }
+        h2 { font-size: 18px; }
+        h3 { font-size: 16px; }
+        p { font-size: 14px; }
+        #map { position: absolute; top: 0; bottom: 0; left: 0; right: 0; width: 100%; }
+        .map-overlay { position: absolute; bottom: 0; right: 0; background: #fff; font-family:Raleway , sans-serif;  border-radius: 3px; box-shadow: 0 1px 2px rgba(0,0,0,0.1); z-index: 1; overflow: visible;}
+        #features, #highlight, #isochrone-controls { top: 0; margin-top: 20px; width: 280px; opacity: 0.7; box-shadow: 0 0 10px rgba(0, 0, 0, 0.5); }
+        #features { height: 330px; }
+        #highlight { top: 360px; height: 210px; }
+        #isochrone-controls { top: 580px; }
+        #geocoder { top: 0; left:0; height: 38px; margin-top: 20px; width: 240px; }
+        .layer-selector { padding: 10px; margin: 5px; background-color: #eee; cursor: pointer; font-family: Arial, sans-serif; border: 1px solid #ccc; transition: background-color 0.3s; }
+        .layer-selector:hover { filter: brightness(85%); }
+        .layer-selector.selected { filter: brightness(70%); }
+        #layer0 { background-color: #ff595e; }
+        #layer1 { background-color: #8ac926; }
+        #layer2 { background-color: #ffca3a; }
+        #layer3 { background-color: #1982c4; }
+        #layer4 { background-color: #6a4c93; }
+        #search-hint { margin-top: 0px; font-size: 14px; text-align: left; }
+         #isochrone-hint { margin-top: 0px; font-size: 14px; text-align: left; }
+         #legend-hint { margin-top: 0px; font-size: 14px; text-align: left; }
     </style>
 </head>
 <body>
     <div id="map"></div>
-    <div id="control-panel">
-        <h1>Global Aging Trends</h1>
-         <p class="instructions">Use the slider to view population aging data for different years. Click on any country on the map to view a detailed age changing chart.</p>
-        <div id="slider-container">
-            <input type="range" id="slider" min="2022" max="2050" step="1" value="2022">
-            <span id="year-display">2022</span>
-            <button id="startButton">Start</button>
-        </div>
-        <div id="chart-container">
-            <canvas id="chart"></canvas>
-        </div>
-        <h2>Legend</h2>
-        <div id="legend">
-            <div><span class="legend-color" style="background-color: #03045E;"></span> > 32%</div>
-            <div><span class="legend-color" style="background-color: #023E8A;"></span> 28% - 32%</div>
-            <div><span class="legend-color" style="background-color: #0077B6;"></span> 24% - 28%</div>
-            <div><span class="legend-color" style="background-color: #0096C7;"></span> 20% - 24%</div>
-            <div><span class="legend-color" style="background-color: #00B4D8;"></span> 16% - 20%</div>
-            <div><span class="legend-color" style="background-color: #48CAE4;"></span> 12% - 16%</div>
-            <div><span class="legend-color" style="background-color: #90E0EF;"></span> 8% - 12%</div>
-            <div><span class="legend-color" style="background-color: #ADE8F4;"></span> 4% - 8%</div>
-            <div><span class="legend-color" style="background-color: #CAF0F8;"></span> 0% - 4%</div>
-            <div><span class="legend-color" style="background-color: #fff;"></span> No data </div>
-        </div>
-       <p class="resource">Resource: <a href="https://population.un.org/wpp/Download/Standard/Population/" target="_blank">United Nations</a></p>
+    <div class='map-overlay' id='features'>
+        <h2>Eldly infrastructure Map in Manchester (2024)</h2>
+        <div class="layer-selector" id="layer0" onclick="toggleLayerVisibility('shopping', this)">🛒 Shopping</div>
+        <div class="layer-selector" id="layer1" onclick="toggleLayerVisibility('green-infrastructure', this)">🌳 Green Infrastructure</div>
+        <div class="layer-selector" id="layer2" onclick="toggleLayerVisibility('catering', this)">🍽️ Catering</div>
+        <div class="layer-selector" id="layer3" onclick="toggleLayerVisibility('healthcare', this)">🏥 Healthcare</div>
+        <div class="layer-selector" id="layer4" onclick="toggleLayerVisibility('culture-infrastructure', this)">🎥 Culture Infrastructure</div>
+        <div id="legend-hint">Click to show or hide different categories</div>
     </div>
-
-     <script>
-       var map = L.map('map',{zoomControl: false}).setView([20, 0], 2);
-
-L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}', {
-    attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, ' +
-                 'Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
-    maxZoom: 18,
-    id: 'fry2/clw0xh2cg02di01qr781bgsjv/draft', // Mapbox地图样式ID
-    tileSize: 512,
-    zoomOffset: -1,
-    accessToken: 'pk.eyJ1IjoiZnJ5MiIsImEiOiJjbHI3cjY5Z24ybWVvMnB0M251NGJjeTVtIn0.2-gnSomGndcSXg-G3dJlmw' // 替换为你的Mapbox Access Token
-}).addTo(map);
-L.control.zoom({
-     position: 'topright'
-}).addTo(map);
-        var currentLayer;
-        var populationData = {};
-         
-
-        Papa.parse("https://raw.githubusercontent.com/fry222/first1/main/data3.csv", {
-            download: true,
-            header: true,
-            complete: function(results) {
-                results.data.forEach(function(item) {
-                    if (item.Type === "Country/Area") {
-                        if (!populationData[item['Region, subregion, country or area *']]) {
-                            populationData[item['Region, subregion, country or area *']] = {};
-                        }
-                        populationData[item['Region, subregion, country or area *']][item.Year] = item["65+"];
-                    }
-                });
-                document.getElementById('slider').dispatchEvent(new Event('input'));
-                displayChart('United Kingdom', 2022);
-            }
+    <div class="map-overlay" id="isochrone-controls">
+        <h2>Isochrone</h2>
+        <div id="isochrone-hint">Click to show or hide different isochrone maps</div>
+        <label><input type="checkbox" id="isochrone-5" checked> 5 min</label><br>
+        <label><input type="checkbox" id="isochrone-10" checked> 10 min</label><br>
+        <label><input type="checkbox" id="isochrone-15" checked> 15 min</label>
+    </div>
+    <div class='map-overlay' id='highlight'>
+        <h2>Hover over a local authority</h2>
+        <p>Hover over a state!</p>
+    </div>
+    <div class='map-overlay' id='geocoder'>
+     <div id="search-hint">Select your location and see the walkable facilities</div></div>
+    <script>
+        mapboxgl.accessToken = 'pk.eyJ1IjoibWl5YXpoYW8yNSIsImEiOiJjbHI3cjc1YXAyZ20yMmxwbm04OWltYnhzIn0.EdP5hXTxL3xl60hc6eWVIA'; // Replace YOUR_ACCESS_TOKEN with your Mapbox access token
+        var map = new mapboxgl.Map({
+            container: 'map',
+            style: 'mapbox://styles/miyazhao25/clvqr9k2j01pr01qrbyxrg7rt', // Replace with your style URL if needed
+            center: [-2.4, 53.5], // Coordinates for Manchester
+            zoom: 9
         });
 
-        document.getElementById('slider').addEventListener('input', function() {
-            var year = this.value;
-            document.getElementById('year-display').innerText = year;
-            updateMapData(year);
-        });
-
-        var intervalId;
-        var isPlaying = false;
-
-        document.getElementById('startButton').addEventListener('click', function() {
-            if (isPlaying) {
-                clearInterval(intervalId);
-                isPlaying = false;
-                this.textContent = "Start";
+        function toggleLayerVisibility(layerId, element) {
+            var visibility = map.getLayoutProperty(layerId, 'visibility');
+            if (visibility === 'visible') {
+                map.setLayoutProperty(layerId, 'visibility', 'none');
+                element.classList.remove('selected');
             } else {
-                isPlaying = true;
-                this.textContent = "Stop";
-                intervalId = setInterval(function() {
-                    var slider = document.getElementById('slider');
-                    var currentYear = parseInt(slider.value, 10);
-                    var maxYear = parseInt(slider.max, 10);
-                    if (currentYear >= maxYear) {
-                        slider.value = parseInt(slider.min, 10);
-                    } else {
-                        slider.value = currentYear + 1;
-                    }
-                    slider.dispatchEvent(new Event('input'));
-                }, 2000);
+                map.setLayoutProperty(layerId, 'visibility', 'visible');
+                element.classList.add('selected');
             }
+        }
+
+        // Add the geocoder
+        var geocoder = new MapboxGeocoder({
+            accessToken: mapboxgl.accessToken,
+            mapboxgl: mapboxgl,
+            placeholder: 'Enter a location',
+            marker: true,
         });
+        document.getElementById('geocoder').appendChild(geocoder.onAdd(map));
 
-        function updateMapData(year) {
-            if (currentLayer) {
-                map.removeLayer(currentLayer);
-            }
-            fetch('https://raw.githubusercontent.com/fry222/first1/main/custom.geo.json')
+       geocoder.on('result', function(ev) {
+    var coordinates = ev.result.geometry.coordinates;
+    // 使用 flyTo 方法动态设置地图的中心和缩放级别
+    map.flyTo({
+        center: coordinates,
+        zoom: 14 // 指定缩放级别
+    });
+
+    // 调用 fetchAndDisplayIsochrones 函数来显示等时线
+    fetchAndDisplayIsochrones(coordinates);
+});
+
+         geocoder.query('M1 4AJ');
+        
+             function fetchAndDisplayIsochrones(coordinates) {
+            [5, 10, 15].forEach(function(minutes) {
+                var adjustedMinutes = minutes * 0.8;
+                var url = `https://api.mapbox.com/isochrone/v1/mapbox/walking/${coordinates.join(',')}?contours_minutes=${adjustedMinutes}&polygons=true&access_token=${mapboxgl.accessToken}`;
+                fetch(url)
                 .then(response => response.json())
-                .then(geoJson => {
-                    currentLayer = L.geoJSON(geoJson, {
-                        style: function(feature) {
-                            const country = feature.properties.name;
-                            const percentage = populationData[country] && populationData[country][year] ? populationData[country][year] : 0;
-                            return {
-                                color: '#fff',
-                                fillColor: getColor(percentage),
-                                fillOpacity: 1,
-                                weight: 1
-                            };
-                        },
-                        onEachFeature: function(feature, layer) {
-                            layer.on('click', function() {
-                                displayChart(feature.properties.name, year);
-                            });
-                        }
-                    }).addTo(map);
-                });
-        }
-
-        function getColor(percentage) {
-            return percentage > 32 ? '#03045E' :
-                   percentage > 28 ? '#023E8A' :
-                   percentage > 24 ? '#0077B6' :
-                   percentage > 20 ? '#0096C7' :
-                   percentage > 16 ? '#00B4D8' :
-                   percentage > 12 ? '#48CAE4' :
-                   percentage > 8  ? '#90E0EF' :
-                   percentage > 4  ? '#ADE8F4' :
-                   percentage > 0  ? '#CAF0F8' :
-                                     '#fff';
-        }
-
-        function displayChart(country) {
-            var years = [];
-            var percentages = [];
-
-            for (let year = 2022; year <= 2050; year++) {
-                years.push(year);
-                percentages.push(populationData[country] && populationData[country][year] ? populationData[country][year] : 0);
-            }
-
-            var ctx = document.getElementById('chart').getContext('2d');
-            if (window.myChart) window.myChart.destroy();
-            window.myChart = new Chart(ctx, {
-                type: 'line',
-                data: {
-                    labels: years,
-                    datasets: [{ label: `${country} Aging Population %`, data: percentages }]
-                },
-                options: {
-                    responsive: true,
-        maintainAspectRatio: false,
-                    scales: {
-                        y: {
-                            beginAtZero: true
-                        }
+                .then(data => {
+                    var layerId = 'isochrone-' + minutes;
+                    var source = map.getSource(layerId);
+                    if (source) {
+                        source.setData(data);
+                    } else {
+                        map.addLayer({
+                            'id': layerId,
+                            'type': 'fill',
+                            'source': {
+                                'type': 'geojson',
+                                'data': data
+                            },
+                            'layout': { 'visibility': 'visible' },
+                            'paint': {
+                                'fill-color': '#0077B6',
+                                'fill-opacity': 0.3         
+                            }
+                        });
                     }
-                }
+                });
             });
         }
+
+
+  document.querySelectorAll('#isochrone-controls input[type="checkbox"]').forEach(function(checkbox) {
+            checkbox.addEventListener('change', function() {
+                var minutes = this.id.split('-')[1];
+                var layerId = 'isochrone-' + minutes;
+                toggleLayerVisibility(layerId, this);
+            });
+        });
+
+
+        
+      map.on('mousemove', (event) => {
+    const features = map.queryRenderedFeatures(event.point, {
+        layers: ['msoa-fill']  
+    });
+
+    let displayContent;
+    if (features.length) {
+        const props = features[0].properties;
+        const areaName = props.hclnm;  
+        displayContent = `<h3>${areaName}</h3>`;
+
+        displayContent += `<p>🛒 Shopping: ${props.shopping_p || 0}</p>`;
+        displayContent += `<p>🌳 Green Infrastructure: ${props.green_poin || 0}</p>`;
+        displayContent += `<p>🍽️ Catering: ${props.catering_p || 0}</p>`;
+        displayContent += `<p>🏥 Healthcare: ${props.healthcare || 0}</p>`;
+        displayContent += `<p>🎥 Culture Infrastructure: ${props.culture_po || 0}</p>`;
+    } else {
+        displayContent = `<p>Hover over a state!</p>`; 
+    }
+
+    document.getElementById('highlight').innerHTML = displayContent;
+   });
     </script>
 </body>
 </html>
