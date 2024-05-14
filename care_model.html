@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Map with Population Pyramids</title>
+    <link href="https://api.mapbox.com/mapbox-gl-js/v3.0.1/mapbox-gl.css" rel="stylesheet">
+    <script src="https://api.mapbox.com/mapbox-gl-js/v3.0.1/mapbox-gl.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.1/papaparse.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/echarts/4.8.0/echarts.min.js"></script>
+    <style>
+        body, html { margin: 0; padding: 0; height: 100%; }
+        #map { width: 100%; height: 100%; position: absolute; }
+        #info-panel1 { border-radius: 8px;position: absolute; left: 0; width: 30%; height: 80%; background-color: rgba(255, 255, 255, 0.7); }
+        .chart-container { width: 100%; height: 55%; }
+        h1 { display: flex;font-size: 24px; margin-bottom: 20px;}
+        h3 { display: flex;font-size: 15px; margin-bottom: 20px;}
+        h2 { display: flex;font-size: 18px; margin-bottom: 20px;  justify-content: center; }
+        #side-panel{border-radius: 8px;position: absolute; right: 0; top: 0; width: 25%; height: 100%; background-color: rgba(255, 255, 255, 0.5); padding: 20px;}
+          .description-title {
+        font-weight: bold;
+        font-size: 18px;
+    }
+    .description-body {
+        text-indent: 20px; /* 首行缩进 */
+    }
+    .country-name {
+        font-size: 20px;
+        color: darkblue;
+    }
+    </style>
+</head>
+<body>
+    <div id="map"></div>
+    <div id="info-panel1">
+        <h1 id="chart-title"><strong>Population structure and elderly care service model</strong></h1>
+        <h3 id="introduction">This interactive map compares population structure and elderly care service model to understand whether different thinking is sustainable for the future. Please slide your mouse to see different countries</h3>
+        <h3 id="introduction">Data from：<a href="https://population.un.org/wpp/Download/Standard/Population/">United Nations</a> </h3>
+        <h2 id="chart-title">Population Structure in 2021</h2>
+        <div id="chart-container" class="chart-container"></div>
+    </div>
+   <div id="side-panel">
+    <p id="initial-message">Please slide your mouse to see different countries</p>
+    <div id="country-description" style="display: none;">
+        <h3 id="country-name"></h3>
+        <p id="country-info"></p>
+    </div>
+</div>
+    
+</body>
+<script>
+mapboxgl.accessToken = 'pk.eyJ1IjoiaHowMTEiLCJhIjoiY2xyaHA3b291MDE3bTJqcGh2OHVxZ2RnMCJ9.gzjEIq3nBEXvinebOCT9AQ';
+var map = new mapboxgl.Map({
+    container: 'map',
+    style: 'mapbox://styles/hz011/cltdufaju002n01pk8bpfdex8',
+    center: [0, 20],
+    zoom: 0.5
+});
+
+var countries = {
+    'Japan': { center: [139.6917, 35.6895], description:`
+            <strong>The original community-based model of integrated care</strong>
+            <p>Based on the original community, Japan's comprehensive care model supports the elderly in maintaining their independence and functional capabilities within their existing living environments.<br>
+
+            <p><strong>Universal Health Insurance and Long-Term Care Insurance:</strong> Long-Term Care Insurance provides various services for the elderly who need assistance, including home care, community care, day care, and institutional care (Szczepura et al.,2023).</p>
+            
+            <p><strong>Integrated Care System:</strong> The Japanese system focuses on community-based integration, providing comprehensive services including medical care, prevention, and long-term care, coordinated through various community support centers and care managers, with volunteer participation(Hayashi,2015).</p>
+            
+            <p><strong>Support Services and Infrastructure:</strong> Services are provided under the umbrella of Long-Term Care Insurance (LTCI), which includes different levels of care based on individual needs assessed by care managers. This framework supports elderly individuals from those with minimal needs to those requiring extensive care services (Sano et al., 2023).</p>
+        `},
+    'United States': { center: [-95.7129, 37.0902], description:`
+            <strong>Continuing Care Retirement Community model</strong>
+            <p>The Continuing Care Retirement Community (CCRC) model is a comprehensive long-term care solution based on new community foundations. It offers a variety of choices and levels of care within a single community, allowing the elderly to receive assisted living and nursing home type care within one community(Milliman,2023).<br>
+
+            <p><strong>Aging in Place:</strong>  The main appeal of CCRCs is the ability to remain within the same community throughout the aging process, even as care needs change. This continuity offers significant peace of mind for both residents and their families((Milliman,2023)).</p>
+            
+            <p><strong>A variety of services and infrastructure:</strong>CCRCs typically provide a wide array of amenities such as dining facilities, fitness centers, and social activities to promote an engaging and active lifestyle for residents(Caring.com,2023).</p>
+            
+            <p><strong>Private Ownership and Management: </strong>CCRCs operate under state regulation and are privately owned and managed（Caring.com,2023).However, private operation also means higher costs, which often results in a community of residents who are initially quite independent and of higher socio-economic status.</p>
+        ` },
+    'United Kingdom': { center: [-3.4359, 55.3781], description:`
+            <strong>Home-based model with community support</strong>
+            <p>The UK model emphasizes home-based care built on community foundations, highlighting individual and family responsibilities as well as social solidarity.<br>
+
+            <p><strong>Social Care Service Assessment:</strong> Adult social care services are tested and referred through assessments by social and healthcare professionals. These assessments typically differentiate between those who have healthcare needs and those who only need care and attention(Szczepura et al.,2023).</p>
+            
+            <p><strong>NHS-led Public Health Assurance:</strong>In England, NHS hospital and community health services are provided for free, funded by taxes, and primarily accessed through referrals by general practitioners(Szczepura et al.,2023).</p>
+            
+            <p><strong>Integrated Care Systems:</strong>Each ICS structure includes several "community" care hubs, each covering a population of 30-50,000 and associated general practices(Dixon,2021).</p>
+            <p><strong>Encouraging Self-care:</strong> Local councils usually offer assessments by occupational therapists to identify what changes need to be made in the homes of the elderly. This can include minor adjustments such as installing handrails, ramps, and improved lighting(Dixon,2021).</p>
+        ` },
+    'China': { center: [104.1954, 35.8617], description:`
+            <strong>A diversified pension model with family as the main support</strong>
+            <p>China employs a diversified elderly care model primarily supported by families, with care predominantly provided by spouses, children, and other relatives.<br>
+
+            <p><strong>Traditional culture and Family Responsibility:</strong>  The main appeal of CCRCs is the ability to remain within the same community throughout the aging process, even as care needs change. This continuity offers significant peace of mind for both residents and their families(Shen and Settles,2006).</p>
+            
+            <p><strong>Government Involvement: </strong>The government is increasingly intervening in the elderly care system, attempting to address the shortcomings of family care through laws, policies, and service projects.  Funding from central and local government budgets as well as social welfare funds are allocated specifically for the development of elderly care facilities(Shen and Settles,2006).</strong></p>
+            
+            <p><strong>Supplementary Community and Institutional Care:</strong>Community support includes daily living assistance, health management, and recreational activities for the elderly, reducing their dependence on family members.  Elderly care institutions offer a range of services from basic care to comprehensive medical care(Shen and Settles,2006).</p>
+        ` }
+};
+var currentIndex = 0;
+
+Papa.parse('https://raw.githubusercontent.com/Hanzhi06/CASA006/main/population_data_of_age.csv', {
+    download: true,
+    header: true,
+    complete: function(results) {
+        window.globalPopulationData = results.data;
+        updateDisplay(); // Initially display the first country
+    }
+});
+
+document.addEventListener('wheel', function(event) {
+    if (event.deltaY > 0) {
+        currentIndex = (currentIndex + 1) % Object.keys(countries).length;
+    } else {
+        currentIndex = (currentIndex - 1 + Object.keys(countries).length) % Object.keys(countries).length;
+    }
+    updateDisplay();
+    updateSidePanel();
+});
+
+
+// 页面加载完毕时调用 updateSidePanel 以显示第一个国家的信息
+document.addEventListener('DOMContentLoaded', function() {
+    updateSidePanel();
+});    
+    
+function updateSidePanel() {
+    const countryKey = Object.keys(countries)[currentIndex];
+    const countryData = countries[countryKey];
+    document.getElementById('initial-message').style.display = 'none';
+    document.getElementById('country-description').style.display = 'block';
+    document.getElementById('country-name').innerText = countryKey;
+    document.getElementById('country-info').innerHTML = countryData.description;
+}
+    
+function updateDisplay() {
+    const countryKey = Object.keys(countries)[currentIndex];
+    const countryData = globalPopulationData.filter(row => row.country.replace(' ', '') === countryKey.replace(' ', ''));
+    createChart(countryData, countryKey);
+    map.flyTo({ center: countries[countryKey].center, zoom: 3.5 });
+}
+
+
+function createChart(data, countryName) {
+    const chartContainerId = 'chart-container';
+    let chartContainer = document.getElementById(chartContainerId);
+    if (!chartContainer) {
+        chartContainer = document.createElement('div');
+        chartContainer.id = chartContainerId;
+        chartContainer.className = 'chart-container';
+        document.getElementById('info-panel1').innerHTML = ''; // Clear previous charts
+        document.getElementById('info-panel1').appendChild(chartContainer);
+    }
+
+    var myChart = echarts.init(chartContainer);
+    var option = getChartOption(data);
+    myChart.setOption(option);
+}
+
+function getChartOption(data) {
+    const ageCategories = [...new Set(data.map(item => item.age))]
+    .sort((a, b) => {
+        // 比较年龄区间的起始值
+        return parseInt(a.split('-')[0]) - parseInt(b.split('-')[0]);
+    });
+    const maleData = data.filter(d => d.gender === 'male').map(d => -parseInt(d.population));
+    const femaleData = data.filter(d => d.gender === 'female').map(d => parseInt(d.population));
+
+    return {
+        tooltip: {
+            trigger: 'axis',
+            axisPointer: { type: 'shadow' },
+            formatter: function (params) {
+                return params.map(param => {
+                    // 显示标签、系列名和正值的绝对值
+                    return `${param.marker}${param.seriesName}: ${Math.abs(param.value).toLocaleString()}`;
+                }).join('<br/>');
+            }
+        },
+        legend: { data: ['Male', 'Female'] },
+        grid: { left: '3%', right: '4%', bottom: '3%', containLabel: true },
+        xAxis: {
+            type: 'value',
+            axisLabel: {
+                formatter: function (value) {
+                    return Math.abs(value).toLocaleString(); // 保证X轴标签也显示为正值
+                }
+            }
+        },
+        yAxis: {
+            type: 'category',
+            data: ageCategories,
+            axisTick: { show: false }
+        },
+        series: [
+            {
+                name: 'Male',
+                type: 'bar',
+                stack: 'total',
+                itemStyle: { color: '#8e7c93' },
+                data: maleData
+            },
+            {
+                name: 'Female',
+                type: 'bar',
+                stack: 'total',
+                itemStyle: { color: '#708499' },
+                data: femaleData
+            }
+        ]
+    };
+}
+
+
+map.on('load', function() {
+    updateDisplay(); // Display initial country on map load
+});
+</script>
+</html>
