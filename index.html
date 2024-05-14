@@ -1,170 +1,581 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-    <meta charset="utf-8">
-    <title>Interactive Map</title>
-    <meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no" />
-    <link href="https://api.mapbox.com/mapbox-gl-js/v3.0.1/mapbox-gl.css" rel="stylesheet">
-    <script src="https://api.mapbox.com/mapbox-gl-js/v3.0.1/mapbox-gl.js"></script>
-    <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,300i,400,400i,600,600i,700,700i|Raleway:300,300i,400,400i,500,500i,600,600i,700,700i" rel="stylesheet">
-    <script src="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v5.0.0/mapbox-gl-geocoder.min.js"></script>
-    <link rel="stylesheet" href="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v5.0.0/mapbox-gl-geocoder.css" type="text/css">
-    <style>
-        body { margin: 0; padding: 0; height: 100%; }
-        h2, h3, p { margin: 10px; }
-        h2 { font-size: 18px; }
-        h3 { font-size: 16px; }
-        p { font-size: 14px; }
-        #map { position: absolute; top: 0; bottom: 0; left: 0; right: 0; width: 100%; }
-        .map-overlay { position: absolute; bottom: 0; right: 0; background: #fff; font-family:Raleway , sans-serif;  border-radius: 3px; box-shadow: 0 1px 2px rgba(0,0,0,0.1); z-index: 1; overflow: visible;}
-        #features, #highlight, #isochrone-controls { top: 0; margin-top: 20px; width: 280px; opacity: 0.7; box-shadow: 0 0 10px rgba(0, 0, 0, 0.5); }
-        #features { height: 330px; }
-        #highlight { top: 360px; height: 210px; }
-        #isochrone-controls { top: 580px; }
-        #geocoder { top: 0; left:0; height: 38px; margin-top: 20px; width: 240px; }
-        .layer-selector { padding: 10px; margin: 5px; background-color: #eee; cursor: pointer; font-family: Arial, sans-serif; border: 1px solid #ccc; transition: background-color 0.3s; }
-        .layer-selector:hover { filter: brightness(85%); }
-        .layer-selector.selected { filter: brightness(70%); }
-        #layer0 { background-color: #ff595e; }
-        #layer1 { background-color: #8ac926; }
-        #layer2 { background-color: #ffca3a; }
-        #layer3 { background-color: #1982c4; }
-        #layer4 { background-color: #6a4c93; }
-        #search-hint { margin-top: 0px; font-size: 14px; text-align: left; }
-         #isochrone-hint { margin-top: 0px; font-size: 14px; text-align: left; }
-         #legend-hint { margin-top: 0px; font-size: 14px; text-align: left; }
-    </style>
+  <meta charset="utf-8">
+  <meta content="width=device-width, initial-scale=1.0" name="viewport">
+
+  <title>Future Silver</title>
+  <meta content="" name="description">
+  <meta content="" name="keywords">
+
+  <!-- Favicons -->
+  <link href="assets/img/F.png" rel="icon">
+  <link href="assets/img/F.png" rel="apple-touch-icon">
+
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,300i,400,400i,600,600i,700,700i|Raleway:300,300i,400,400i,500,500i,600,600i,700,700i|Poppins:300,300i,400,400i,500,500i,600,600i,700,700i" rel="stylesheet">
+
+  <!-- Vendor CSS Files -->
+  <link href="assets/vendor/aos/aos.css" rel="stylesheet">
+  <link href="assets/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+  <link href="assets/vendor/bootstrap-icons/bootstrap-icons.css" rel="stylesheet">
+  <link href="assets/vendor/boxicons/css/boxicons.min.css" rel="stylesheet">
+  <link href="assets/vendor/glightbox/css/glightbox.min.css" rel="stylesheet">
+  <link href="assets/vendor/remixicon/remixicon.css" rel="stylesheet">
+  <link href="assets/vendor/swiper/swiper-bundle.min.css" rel="stylesheet">
+    
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="https://api.mapbox.com/mapbox-gl-js/v3.0.1/mapbox-gl.css" rel="stylesheet">
+  <script src="https://api.mapbox.com/mapbox-gl-js/v3.0.1/mapbox-gl.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.1/papaparse.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/echarts/4.8.0/echarts.min.js"></script>
+
+  <!-- Template Main CSS File -->
+  <link href="assets/css/style.css" rel="stylesheet">
+    
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <!-- 引用 Papa Parse 用于解析 CSV -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
+
+  <!-- =======================================================
+  * Template Name: Dewi
+  * Template URL: https://bootstrapmade.com/dewi-free-multi-purpose-html-template/
+  * Updated: Mar 17 2024 with Bootstrap v5.3.3
+  * Author: BootstrapMade.com
+  * License: https://bootstrapmade.com/license/
+  ======================================================== -->
 </head>
+
 <body>
-    <div id="map"></div>
-    <div class='map-overlay' id='features'>
-        <h2>Eldly infrastructure Map in Manchester (2024)</h2>
-        <div class="layer-selector" id="layer0" onclick="toggleLayerVisibility('shopping', this)">🛒 Shopping</div>
-        <div class="layer-selector" id="layer1" onclick="toggleLayerVisibility('green-infrastructure', this)">🌳 Green Infrastructure</div>
-        <div class="layer-selector" id="layer2" onclick="toggleLayerVisibility('catering', this)">🍽️ Catering</div>
-        <div class="layer-selector" id="layer3" onclick="toggleLayerVisibility('healthcare', this)">🏥 Healthcare</div>
-        <div class="layer-selector" id="layer4" onclick="toggleLayerVisibility('culture-infrastructure', this)">🎥 Culture Infrastructure</div>
-        <div id="legend-hint">Click to show or hide different categories</div>
+
+  <!-- ======= Header ======= -->
+  <header id="header" class="fixed-top ">
+    <div class="container d-flex align-items-center justify-content-between">
+
+      <h1 class="logo"><a href="index.html">FSilver</a></h1>
+      <!-- Uncomment below if you prefer to use an image logo -->
+      <!-- <a href="index.html" class="logo"><img src="assets/img/logo.png" alt="" class="img-fluid"></a>-->
+
+      <nav id="navbar" class="navbar">
+        <ul>
+          <li><a class="nav-link scrollto active" href="#Intr">Introduction</a></li>
+          <li><a class="nav-link scrollto" href="#Trend">Global Trends</a></li>
+          <li><a class="nav-link scrollto" href="#example">Care Model Examples</a></li>
+          <li><a class="nav-link scrollto " href="#analysis">Demand and Supply Analysis</a></li>
+          <li><a class="nav-link scrollto" href="#POI">Interactive map</a></li>
+          <li><a class="nav-link scrollto" href="#future">About Future</a></li>
+        </ul>
+        <i class="bi bi-list mobile-nav-toggle"></i>
+      </nav><!-- .navbar -->
+
     </div>
-    <div class="map-overlay" id="isochrone-controls">
-        <h2>Isochrone</h2>
-        <div id="isochrone-hint">Click to show or hide different isochrone maps</div>
-        <label><input type="checkbox" id="isochrone-5" checked> 5 min</label><br>
-        <label><input type="checkbox" id="isochrone-10" checked> 10 min</label><br>
-        <label><input type="checkbox" id="isochrone-15" checked> 15 min</label>
+  </header><!-- End Header -->
+
+  <!-- ======= Hero Section ======= -->
+  <section id="hero">
+    <div class="hero-container" data-aos="fade-up" data-aos-delay="150">
+      <h1>Future Silver</h1>
+      <h2>Focusing on global aging and advocate the construction of age-friendly cities in the future</h2>
+      <div class="d-flex">
+        <a href="#Intr" class="btn-get-started scrollto">Get Started</a>
+      </div>
     </div>
-    <div class='map-overlay' id='highlight'>
-        <h2>Hover over a local authority</h2>
-        <p>Hover over a state!</p>
+  </section><!-- End Hero -->
+
+  <main id="main">
+
+    <!-- ======= Intr Section ======= -->
+    <section id="Intr" class="Intr section-bg">
+        <div class="container" data-aos="fade-up">
+              <div class="section-title">
+                  <p>Introduction</p>
+               </div>
+             <div class="row">
+
+          <div class="col-lg-6 video-box align-self-baseline" data-aos="zoom-in" data-aos-delay="100">
+            <img src="assets/img/Intro.jpg" class="img-fluid" alt="">
+          </div>
+
+          <div class="col-lg-6 pt-3 pt-lg-0 content">
+            <h3>Background</h3>
+            <p>
+              As the global population rapidly ages, the increasing number of elderly brings unprecedented challenges and opportunities. Under the aging situation, autonomy is crucial for maintaining dignity, happiness and health in old age.      As society develops, our elderly care service system must adapt to support their autonomous needs.
+            </p>
+            <h3>What “Future Silver” do？</h3>
+            <p>
+              At “Future Silver,” we explore global aging trends, introduce elderly care models and demographic changes from various countries. Specifically, we focus on the UK as a case study, utilizing data visualization to analyze the supply and demand of elderly care services, helping users understand the phenomenon of aging and the importance of senior autonomy. Additionally, we provide an age-friendly interactive map showing accessible service infrastructures for the elderly, aiding them in planning their future lifestyles.
+            </p>
+          </div>
+
+        </div>
+        
+                </div>
+      </section>
+      
+      
+    <section id="Trend" class="about">
+  <div class="container" data-aos="fade-up">
+    <div class="section-title">
+      <p>&nbsp; &nbsp; &nbsp; Global Trends</p>
     </div>
-    <div class='map-overlay' id='geocoder'>
-     <div id="search-hint">Select your location and see the walkable facilities</div></div>
-    <script>
-        mapboxgl.accessToken = 'pk.eyJ1IjoibWl5YXpoYW8yNSIsImEiOiJjbHI3cjc1YXAyZ20yMmxwbm04OWltYnhzIn0.EdP5hXTxL3xl60hc6eWVIA'; // Replace YOUR_ACCESS_TOKEN with your Mapbox access token
-        var map = new mapboxgl.Map({
-            container: 'map',
-            style: 'mapbox://styles/miyazhao25/clvqr9k2j01pr01qrbyxrg7rt', // Replace with your style URL if needed
-            center: [-2.4, 53.5], // Coordinates for Manchester
-            zoom: 9
+
+    <div class="row">
+      <!-- Chart container -->
+      <div class="col-12 chart-container">
+        <canvas id="myChart"></canvas>
+        <input type="range" min="1950" max="2021" value="1950" class="slider" id="yearSlider">
+        <p>Year: <span id="yearDisplay">1950</span></p>
+      </div>
+    </div>
+
+    <div class="row mt-5">
+      <!-- Text and image content -->
+      <div class="col-lg-4 order-2 order-lg-1 mt-3 mt-lg-0">
+        <h3>Global Aging Trends</h3>
+        <p>
+          This interactive map provides a comprehensive view of global aging trends, showing the percentage of the population aged 65 and older across different countries from 2022 to 2050. Utilize this tool to explore how demographic shifts are projected to change and impact societies worldwide.
+        </p>
+           <a href="https://fry222.github.io/" target="_blank">
+        <button class="explore-more">Explore More</button>
+          </a>
+      </div>
+      <div class="col-lg-8 order-1 order-lg-2 text-center">
+        <img src="assets/img/global.gif" alt="" class="img-fluid">
+      </div>
+    </div>
+  </div>
+</section>
+
+ 
+        <script>
+        const dataByYear = {}; // 全局存储按年份分类的数据
+
+        document.addEventListener('DOMContentLoaded', function() {
+            fetch('https://raw.githubusercontent.com/fry222/first1/main/data2.csv').then(response => {
+                if (!response.ok) throw new Error('Network response was not ok');
+                return response.text();
+            })
+            .then(data => {
+                const jsonData = Papa.parse(data, {
+                    header: true,
+                    dynamicTyping: true
+                }).data;
+                processExcelData(jsonData);
+                updateChart(1950); // 初始显示1950年的数据
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+
+            let currentYear = 1950;
+            const intervalId = setInterval(() => {
+                if (currentYear > 2021) {
+                    clearInterval(intervalId);
+                    currentYear = 1950;
+                } else {
+                    document.getElementById('yearSlider').value = currentYear;
+                    document.getElementById('yearDisplay').textContent = currentYear;
+                    updateChart(currentYear);
+                    currentYear++;
+                }
+            }, 250);
+
+            document.getElementById('yearSlider').addEventListener('input', function() {
+                clearInterval(intervalId);
+                updateChart(this.value);
+                document.getElementById('yearDisplay').textContent = this.value;
+            });
         });
 
-        function toggleLayerVisibility(layerId, element) {
-            var visibility = map.getLayoutProperty(layerId, 'visibility');
-            if (visibility === 'visible') {
-                map.setLayoutProperty(layerId, 'visibility', 'none');
-                element.classList.remove('selected');
-            } else {
-                map.setLayoutProperty(layerId, 'visibility', 'visible');
-                element.classList.add('selected');
+        function processExcelData(data) {
+            data.forEach(item => {
+                if (item.Type === "Country/Area") {
+                    const year = item.Year;
+                    const country = item["Region, subregion, country or area"];
+                    const percentage = parseFloat(item["65+"]);
+
+                    if (!dataByYear[year]) dataByYear[year] = [];
+                    dataByYear[year].push({ country, percentage });
+                }
+            });
+
+            Object.keys(dataByYear).forEach(year => {
+                dataByYear[year].sort((a, b) => b.percentage - a.percentage);
+                dataByYear[year] = dataByYear[year].slice(0, 10); // 取百分比最高的前十个
+            });
+        }
+
+const colorMapping = {}; // 存储每个国家的颜色映射
+
+        
+function SeedRandom(seed) {
+            this.seed = seed;
+            this.next = function() {
+                var x = Math.sin(this.seed++) * 10000;
+                return x - Math.floor(x);
+            };
+        }
+        
+const seedRandom = new SeedRandom(123);
+        
+        
+ function getRandomColor() {
+            const r = Math.floor(seedRandom.next() * 128);
+            const g = Math.floor(seedRandom.next() * 76);
+            const b = Math.floor(seedRandom.next() * 128+128);
+            return `rgba(${r},${g},${b},1)`;
+        }
+
+function ensureColor(country) {
+    if (!colorMapping[country]) {
+        colorMapping[country] = getRandomColor(); // 如果国家还没有颜色，生成一个新的
+    }
+    return colorMapping[country];
+}
+
+function updateChart(year) {
+    const ctx = document.getElementById('myChart').getContext('2d');
+    const chartData = {
+        labels: dataByYear[year].map(item => item.country),
+        datasets: [{
+            label: `Percentage of Population Aged 65+ in ${year}`,
+            data: dataByYear[year].map(item => item.percentage),
+            backgroundColor: dataByYear[year].map(item => ensureColor(item.country)), // 使用或生成颜色
+            borderColor: dataByYear[year].map(item => ensureColor(item.country)), // 边框使用相同颜色
+            borderWidth: 1
+        }]
+    };
+
+    if (window.myBarChart) {
+        window.myBarChart.destroy();
+    }
+   window.myBarChart = new Chart(ctx, {
+    type: 'bar',
+    data: chartData,
+    options: {
+        animation: {
+            duration: 0 // 禁用动画以使图表加载时无延迟
+        },
+        indexAxis: 'y', // 将条形图的索引轴设置为垂直
+        scales: {
+            x: {
+                beginAtZero: true, // x轴从0开始
+                suggestedMax: 40, // 建议x轴的最大值为40
+                ticks: {
+                    callback: function(value) {
+                        return `${value}%`; // 在X轴的每个刻度后加上百分号
+}
+}
+            },
+            y: {
+                display: false // 不显示y轴标签
+            }
+        },
+        plugins: {
+            legend: {
+                display: false // 隐藏图例
+            },
+            tooltip: {
+                enabled: true // 启用工具提示
+            },
+            title: {
+                display: true, // 显示标题
+                text: `Top 10 Countries by Population Aged 65+ Percentage in ${year}`, // 标题文本
+                font: {
+                    size: 20 // 标题字体大小
+                },
+                padding: {
+                    top: 10, // 标题顶部间距
+                    bottom: 10 // 标题底部间距
+                },
+                align: 'center' // 标题居中对齐
             }
         }
-
-        // Add the geocoder
-        var geocoder = new MapboxGeocoder({
-            accessToken: mapboxgl.accessToken,
-            mapboxgl: mapboxgl,
-            placeholder: 'Enter a location',
-            marker: true,
-        });
-        document.getElementById('geocoder').appendChild(geocoder.onAdd(map));
-
-       geocoder.on('result', function(ev) {
-    var coordinates = ev.result.geometry.coordinates;
-    // 使用 flyTo 方法动态设置地图的中心和缩放级别
-    map.flyTo({
-        center: coordinates,
-        zoom: 14 // 指定缩放级别
-    });
-
-    // 调用 fetchAndDisplayIsochrones 函数来显示等时线
-    fetchAndDisplayIsochrones(coordinates);
-});
-
-         geocoder.query('M1 4AJ');
-        
-             function fetchAndDisplayIsochrones(coordinates) {
-            [5, 10, 15].forEach(function(minutes) {
-                var adjustedMinutes = minutes * 0.8;
-                var url = `https://api.mapbox.com/isochrone/v1/mapbox/walking/${coordinates.join(',')}?contours_minutes=${adjustedMinutes}&polygons=true&access_token=${mapboxgl.accessToken}`;
-                fetch(url)
-                .then(response => response.json())
-                .then(data => {
-                    var layerId = 'isochrone-' + minutes;
-                    var source = map.getSource(layerId);
-                    if (source) {
-                        source.setData(data);
-                    } else {
-                        map.addLayer({
-                            'id': layerId,
-                            'type': 'fill',
-                            'source': {
-                                'type': 'geojson',
-                                'data': data
-                            },
-                            'layout': { 'visibility': 'visible' },
-                            'paint': {
-                                'fill-color': '#0077B6',
-                                'fill-opacity': 0.3         
-                            }
-                        });
-                    }
+    },
+        plugins: [{
+            id: 'textLabels',
+            afterDraw: chart => {
+                const ctx = chart.ctx;
+                ctx.fillStyle = 'black';
+                ctx.textAlign = 'left';
+                ctx.textBaseline = 'middle';
+                chart.data.datasets.forEach((dataset, i) => {
+                    const meta = chart.getDatasetMeta(i);
+                    meta.data.forEach((bar, index) => {
+                        const label = chart.data.labels[index];
+                        const labelX = bar.x + 5;
+                        const labelY = bar.y;
+                        ctx.fillText(label, labelX, labelY);
+                    });
                 });
-            });
-        }
-
-
-  document.querySelectorAll('#isochrone-controls input[type="checkbox"]').forEach(function(checkbox) {
-            checkbox.addEventListener('change', function() {
-                var minutes = this.id.split('-')[1];
-                var layerId = 'isochrone-' + minutes;
-                toggleLayerVisibility(layerId, this);
-            });
-        });
-
-
-        
-      map.on('mousemove', (event) => {
-    const features = map.queryRenderedFeatures(event.point, {
-        layers: ['msoa-fill']  
+                ctx.font = 'bold 40px';
+                ctx.fillStyle = 'gray';
+                ctx.textAlign = 'right';
+                ctx.textBaseline = 'bottom';
+                const chartWidth = chart.width;
+                const chartHeight = chart.height;
+                ctx.fillText(` ${year}`, chartWidth - 100, chartHeight - 100);
+            }
+        }]
     });
+}
 
-    let displayContent;
-    if (features.length) {
-        const props = features[0].properties;
-        const areaName = props.hclnm;  
-        displayContent = `<h3>${areaName}</h3>`;
-
-        displayContent += `<p>🛒 Shopping: ${props.shopping_p || 0}</p>`;
-        displayContent += `<p>🌳 Green Infrastructure: ${props.green_poin || 0}</p>`;
-        displayContent += `<p>🍽️ Catering: ${props.catering_p || 0}</p>`;
-        displayContent += `<p>🏥 Healthcare: ${props.healthcare || 0}</p>`;
-        displayContent += `<p>🎥 Culture Infrastructure: ${props.culture_po || 0}</p>`;
-    } else {
-        displayContent = `<p>Hover over a state!</p>`; 
-    }
-
-    document.getElementById('highlight').innerHTML = displayContent;
-   });
     </script>
+         <!-- End Trend Section -->    
+
+    <!-- ======= example Section ======= -->
+    <section id="example" class="services section-bg">
+      <div class="container" data-aos="fade-up">
+
+        <div class="section-title">
+          <p>Care Model Examples</p>
+        </div>
+           <div class="row">
+
+          <div class="col-lg-4 order-1 order-lg-2 mt-3 mt-lg-0">
+            <p>
+              In the future, the aging population and the decline of fertility rate will lead to the imbalance of population structure, which also brings challenges to the supply of elderly care services and different types of elderly care service models. For the Chinese model, the burden of family care for the elderly increases; For the UK model, the shortage of nursing manpower will be accompanied by an increase in the financial burden of government; For the US model, the high cost makes the service not available to all. For Japan model, a more serious ageing will bring all these risks to bear. In the face of these challenges, the government needs to develop longer-term policies and strengthen community support. The most important thing is that the elderly need a sense of autonomy and learn to take the initiative to obtain elderly service resources.
+            </p>
+            <a href="https://fry222.github.io/care_model.html" target="_blank">
+             <button class="explore-more">Explore More</button>
+            </a>
+            
+          </div>
+               
+          <div class="col-lg-8 order-2 order-lg-1 text-center" data-aos="zoom-in" data-aos-delay="100">
+            <img src="assets/img/model-1.gif" class="img-fluid" alt="">
+          </div>
+               
+      </div>
+        </div>      
+    </section>
+      
+      <!-- End example Section -->
+      
+    <!-- ======= Analysis Section ======= -->
+      
+  <section id="analysis">
+    <div class="container" data-aos="fade-up" data-aos-delay="150">
+      
+      <div class="section-title">
+          <p>&nbsp; &nbsp; &nbsp; Supply and Demand Analysis</p>
+        </div>
+        
+      
+    <div class="row mb-5">
+      <!-- Chart container -->
+      <div class="col-12 col-md-10 offset-md-1 chart-container">
+        <div class="flourish-embed flourish-chart" data-src="visualisation/17958464"><script src="https://public.flourish.studio/resources/embed.js"></script></div>
+    </div>
+        </div>
+        
+      
+      <div class="row mb-5">
+      <!-- Chart container -->
+      <div class="col-12 col-md-10 offset-md-1 chart-container">
+        <div class="flourish-embed flourish-chart" data-src="visualisation/17945328"><script src="https://public.flourish.studio/resources/embed.js"></script></div>
+      </div>
+    </div>
+       <div class="row mb-5"></div>
+        <div class="row">
+
+          <div class="col-lg-8 order-1 order-lg-2 text-centerx" data-aos="zoom-in" data-aos-delay="100">
+            <img src="assets/img/analysis.gif" class="img-fluid" alt="">
+          </div>
+
+          <div class="col-lg-4 order-2 order-lg-1 mt-3 mt-lg-0">
+            <h3>Supply and Demand Map</h3>
+            <p>
+               In the UK, elderly care relies on community practitioners. We analyze regional differences at the MSOA scale in England by examining the employee density in human health and social work activities (supply) and the population density of individuals over 65 years old (demand). By dividing supply by demand, we identify areas where elderly care services are imbalanced, highlighting regions with insufficient or oversupplied services for targeted improvements.
+            </p>
+              <a href="https://fry222.github.io/asd.html" target="_blank">
+             <button class="explore-more">Explore More</button>
+            </a>
+            
+          </div>
+    </div>
+      </div>
+  </section>
+      
+      <!-- End Analysis -->
+      
+    <!-- ======= POI Section ======= -->
+      
+  <section id="POI" class="services section-bg">
+    <div class="container" data-aos="fade-up" data-aos-delay="150">
+      
+      <div class="section-title">
+          <p>Interactive map</p>
+        </div>
+         <div class="row">
+        <div class="col-lg-4 order-1 order-lg-2 mt-3 mt-lg-0">
+            <p>
+             In the future, elderly care will shift from passive to active engagement, necessitating more interactive and convenient solutions. Manchester, with the highest supply of relevant practitioners in England, was chosen for a case study and interactive map implementation. We categorized Manchester's infrastructure into shopping, green spaces, dining, healthcare, and cultural facilities, calculating accessibility within 5, 10, and 15-minute walking distances for the elderly. Seniors can enter their location on the map to see nearby infrastructure within these time frames, helping them plan their activities and access essential services more easily. This approach aims to empower the elderly to actively seek the help and amenities they need.
+            </p>
+             <a href="https://fry222.github.io/testpoi.html" target="_blank">
+             <button class="explore-more">Explore More</button>
+            </a>
+            
+          </div>
+               
+          <div class="col-lg-8 order-2 order-lg-1 text-center" data-aos="zoom-in" data-aos-delay="100">
+            <img src="assets/img/inter.gif" class="img-fluid" alt="">
+          </div>
+             
+          </div>
+      </div>
+      </section>
+        
+     <!-- End POI -->
+
+    <!-- ======= future Section ======= -->
+    <section id="future" class="testimonials">
+      <div class="container" data-aos="zoom-in">
+        <div class="section-title">
+          <p>About Future</p>
+        </div>
+
+        <div class="testimonials-slider swiper" data-aos="fade-up" data-aos-delay="100">
+          <div class="swiper-wrapper">
+
+            <div class="swiper-slide">
+              <div class="testimonial-item">
+                <p>
+                  <i class="bx bxs-quote-alt-left quote-icon-left"></i>
+                  The use of interactive maps and data tools will build a bridge between policymakers, healthcare providers, and community planners with the elderly.
+                  <i class="bx bxs-quote-alt-right quote-icon-right"></i>
+                </p>
+              </div>
+            </div><!-- End testimonial item -->
+
+            <div class="swiper-slide">
+              <div class="testimonial-item">
+                <p>
+                  <i class="bx bxs-quote-alt-left quote-icon-left"></i>
+                  Establishing global standards for age-friendly communities will ensure consistent and high-quality support for the elderly worldwide.
+                  <i class="bx bxs-quote-alt-right quote-icon-right"></i>
+                </p>
+              </div>
+            </div><!-- End testimonial item -->
+
+            <div class="swiper-slide">
+              <div class="testimonial-item">
+                <p>
+                  <i class="bx bxs-quote-alt-left quote-icon-left"></i>
+                  Creating senior clubs enhances the quality of life for the elderly by providing social interaction, health, wellness activities, and fostering a sense of community and belonging.
+                  <i class="bx bxs-quote-alt-right quote-icon-right"></i>
+                </p>
+              </div>
+            </div><!-- End testimonial item -->
+
+            <div class="swiper-slide">
+              <div class="testimonial-item">
+                <p>
+                  <i class="bx bxs-quote-alt-left quote-icon-left"></i>
+                  The United Nations and the World Health Organization will play pivotal roles in coordinating global efforts to address the aging population.
+                  <i class="bx bxs-quote-alt-right quote-icon-right"></i>
+                </p>
+              </div>
+            </div><!-- End testimonial item -->
+
+            <div class="swiper-slide">
+              <div class="testimonial-item">
+                <p>
+                  <i class="bx bxs-quote-alt-left quote-icon-left"></i>
+                  Countries can collaborate on research, share technological innovations, and develop joint policies to manage the aging population effectively.
+                  <i class="bx bxs-quote-alt-right quote-icon-right"></i>
+                </p>
+              </div>
+            </div><!-- End testimonial item -->
+
+          </div>
+          <div class="swiper-pagination"></div>
+        </div>
+
+      </div>
+    </section><!-- End Testimonials Section -->
+
+    <!-- ======= Team Section ======= -->
+    <section id="team" class="team section-bg">
+      <div class="container" data-aos="fade-up">
+
+        <div class="section-title">
+          <p>Check our Team</p>
+        </div>
+
+        <div class="row">
+
+          <div class="col-lg-4 col-md-6">
+            <div class="member" data-aos="fade-up" data-aos-delay="100">
+              <div class="pic"><img src="assets/img/jialongdong.jpg" class="img-fluid" alt=""></div>
+              <div class="member-info">
+                <h4>Jialong Dong</h4>
+                <span>Technology and Visualization Manager</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-lg-4 col-md-6" data-aos="fade-up" data-aos-delay="200">
+            <div class="member">
+              <div class="pic"><img src="assets/img/mingyuanzhao.jpg" class="img-fluid" alt=""></div>
+              <div class="member-info">
+                <h4>Mingyuan Zhao</h4>
+                <span>Data and Structure Manager</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-lg-4 col-md-6" data-aos="fade-up" data-aos-delay="300">
+            <div class="member">
+              <div class="pic"><img src="assets/img/hanzhiyang.jpg" class="img-fluid" alt=""></div>
+              <div class="member-info">
+                <h4>Hanzhi Yang</h4>
+                <span>Design and Research Manager</span>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+    </section><!-- End Team Section -->
+
+  </main><!-- End #main -->
+
+  <!-- ======= Footer ======= -->
+  <footer id="footer">
+    <div class="container">
+      <div class="copyright">
+        &copy; Copyright <strong><span>Dewi</span></strong>. All Rights Reserved
+      </div>
+      <div class="credits">
+        <!-- All the links in the footer should remain intact. -->
+        <!-- You can delete the links only if you purchased the pro version. -->
+        <!-- Licensing information: https://bootstrapmade.com/license/ -->
+        <!-- Purchase the pro version with working PHP/AJAX contact form: https://bootstrapmade.com/dewi-free-multi-purpose-html-template/ -->
+        Designed by <a href="https://bootstrapmade.com/">BootstrapMade</a>
+      </div>
+    </div>
+                                    
+  </footer><!-- End Footer -->
+
+  <div id="preloader"></div>
+  <a href="#" class="back-to-top d-flex align-items-center justify-content-center"><i class="bi bi-arrow-up-short"></i></a>
+
+  <!-- Vendor JS Files -->
+  <script src="assets/vendor/purecounter/purecounter_vanilla.js"></script>
+  <script src="assets/vendor/aos/aos.js"></script>
+  <script src="assets/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+  <script src="assets/vendor/glightbox/js/glightbox.min.js"></script>
+  <script src="assets/vendor/isotope-layout/isotope.pkgd.min.js"></script>
+  <script src="assets/vendor/swiper/swiper-bundle.min.js"></script>
+  <script src="assets/vendor/php-email-form/validate.js"></script>
+
+  <!-- Template Main JS File -->
+  <script src="assets/js/main.js"></script>
+
 </body>
+
 </html>
