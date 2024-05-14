@@ -132,12 +132,12 @@
 
     <div class="row mt-5">
       <!-- Text and image content -->
-      <div class="col-lg-4 order-2 order-lg-1 mt-3 mt-lg-0">
+      <div class="col-lg-4 order-2 order-lg-1 mt-3 mt-lg-0 content">
         <h3>Global Aging Trends</h3>
         <p>
           This interactive map provides a comprehensive view of global aging trends, showing the percentage of the population aged 65 and older across different countries from 2022 to 2050. Utilize this tool to explore how demographic shifts are projected to change and impact societies worldwide.
         </p>
-           <a href="https://fry222.github.io/" target="_blank">
+           <a href="https://fry222.github.io/global_aging_trend.html" target="_blank">
         <button class="explore-more">Explore More</button>
           </a>
       </div>
@@ -150,8 +150,8 @@
 
  
         <script>
-        const dataByYear = {}; // 全局存储按年份分类的数据
-
+ const dataByYear = {}; // 全局存储按年份分类的数据
+         const worldDataByYear = {}; 
         document.addEventListener('DOMContentLoaded', function() {
             fetch('https://raw.githubusercontent.com/fry222/first1/main/data2.csv').then(response => {
                 if (!response.ok) throw new Error('Network response was not ok');
@@ -172,7 +172,6 @@
             let currentYear = 1950;
             const intervalId = setInterval(() => {
                 if (currentYear > 2021) {
-                    clearInterval(intervalId);
                     currentYear = 1950;
                 } else {
                     document.getElementById('yearSlider').value = currentYear;
@@ -191,13 +190,16 @@
 
         function processExcelData(data) {
             data.forEach(item => {
+                const year = item.Year;
+                const percentage = parseFloat(item["65+"]);
+
                 if (item.Type === "Country/Area") {
-                    const year = item.Year;
                     const country = item["Region, subregion, country or area"];
-                    const percentage = parseFloat(item["65+"]);
 
                     if (!dataByYear[year]) dataByYear[year] = [];
                     dataByYear[year].push({ country, percentage });
+                } else if (item.Type === "World") {
+                    worldDataByYear[year] = percentage; // 保存World数据
                 }
             });
 
@@ -207,26 +209,16 @@
             });
         }
 
+
 const colorMapping = {}; // 存储每个国家的颜色映射
 
-        
-function SeedRandom(seed) {
-            this.seed = seed;
-            this.next = function() {
-                var x = Math.sin(this.seed++) * 10000;
-                return x - Math.floor(x);
-            };
-        }
-        
-const seedRandom = new SeedRandom(123);
-        
-        
- function getRandomColor() {
-            const r = Math.floor(seedRandom.next() * 128);
-            const g = Math.floor(seedRandom.next() * 76);
-            const b = Math.floor(seedRandom.next() * 128+128);
-            return `rgba(${r},${g},${b},1)`;
-        }
+// 定义一个简单的颜色范围，你可以自行修改颜色
+const colors = ['#f3dcfe', '#e5b4fd', '#cb5df1', '#b333e9', '#6910a8', '#8cdfed', '#00b4d8', '#0096c7', '#023e8a','#0077b6','#00b4d8','#48cae4','#90e0ef' ];
+
+function getRandomColor() {
+    // 随机选择一个颜色 
+    return colors[Math.floor(Math.random() * colors.length)];
+}
 
 function ensureColor(country) {
     if (!colorMapping[country]) {
@@ -282,7 +274,7 @@ function updateChart(year) {
             },
             title: {
                 display: true, // 显示标题
-                text: `Top 10 Countries by Population Aged 65+ Percentage in ${year}`, // 标题文本
+                text: `Top 10 Countries by Population Aged 65+ Percentage from 1950 to 2021`, // 标题文本
                 font: {
                     size: 20 // 标题字体大小
                 },
@@ -298,6 +290,7 @@ function updateChart(year) {
             id: 'textLabels',
             afterDraw: chart => {
                 const ctx = chart.ctx;
+                ctx.font = '12px Raleway';
                 ctx.fillStyle = 'black';
                 ctx.textAlign = 'left';
                 ctx.textBaseline = 'middle';
@@ -310,22 +303,33 @@ function updateChart(year) {
                         ctx.fillText(label, labelX, labelY);
                     });
                 });
-                ctx.font = 'bold 40px';
+                ctx.font = 'bold 40px Raleway';
                 ctx.fillStyle = 'gray';
                 ctx.textAlign = 'right';
                 ctx.textBaseline = 'bottom';
                 const chartWidth = chart.width;
                 const chartHeight = chart.height;
                 ctx.fillText(` ${year}`, chartWidth - 100, chartHeight - 100);
+                
+                 ctx.font = 'bold 16px Raleway';
+                ctx.fillStyle = 'gray';
+                ctx.textAlign = 'right';
+                ctx.textBaseline = 'bottom';
+                const chartWidth1 = chart.width;
+                const chartHeight1 = chart.height;
+                ctx.fillText(`World Average Percentage: ${worldDataByYear[year]}`, chartWidth1 - 50, chartHeight1 - 60);
             }
         }]
     });
+  
 }
 
     </script>
          <!-- End Trend Section -->    
 
     <!-- ======= example Section ======= -->
+    
+      
     <section id="example" class="services section-bg">
       <div class="container" data-aos="fade-up">
 
@@ -334,7 +338,7 @@ function updateChart(year) {
         </div>
            <div class="row">
 
-          <div class="col-lg-4 order-1 order-lg-2 mt-3 mt-lg-0">
+          <div class="col-lg-4 order-1 order-lg-2 mt-3 mt-lg-0 content">
             <p>
               In the future, the aging population and the decline of fertility rate will lead to the imbalance of population structure, which also brings challenges to the supply of elderly care services and different types of elderly care service models. For the Chinese model, the burden of family care for the elderly increases; For the UK model, the shortage of nursing manpower will be accompanied by an increase in the financial burden of government; For the US model, the high cost makes the service not available to all. For Japan model, a more serious ageing will bring all these risks to bear. In the face of these challenges, the government needs to develop longer-term policies and strengthen community support. The most important thing is that the elderly need a sense of autonomy and learn to take the initiative to obtain elderly service resources.
             </p>
@@ -356,48 +360,44 @@ function updateChart(year) {
       
     <!-- ======= Analysis Section ======= -->
       
-  <section id="analysis">
-    <div class="container" data-aos="fade-up" data-aos-delay="150">
-      
-      <div class="section-title">
-          <p>&nbsp; &nbsp; &nbsp; Supply and Demand Analysis</p>
+   <section id="analysis">
+        <div class="container" data-aos="fade-up" data-aos-delay="150">
+            <div class="section-title">
+                <p>&nbsp; &nbsp; &nbsp; Supply and Demand Analysis</p>
+            </div>
+            <div class="row mb-5">
+                <!-- Chart container -->
+                <div class="col-12 col-md-10 offset-md-1 chart-container">
+                    <div class="flourish-embed flourish-chart" data-src="visualisation/17958464">
+                        <script src="https://public.flourish.studio/resources/embed.js"></script>
+                    </div>
+                </div>
+            </div>
+            <div class="row mb-5">
+                <!-- Chart container -->
+                <div class="col-12 col-md-10 offset-md-1 chart-container">
+                    <div class="flourish-embed flourish-chart" data-src="visualisation/17945328">
+                        <script src="https://public.flourish.studio/resources/embed.js"></script>
+                    </div>
+                </div>
+            </div>
+            <div class="row mb-5"></div>
+            <div class="row">
+                <div class="col-lg-8 order-1 order-lg-2 text-centerx" data-aos="zoom-in" data-aos-delay="100">
+                    <img src="assets/img/analysis.gif" class="img-fluid" alt="">
+                </div>
+                <div class="col-lg-4 order-2 order-lg-1 mt-3 mt-lg-0 content">
+                    <h3>Supply and Demand Map</h3>
+                    <p>
+                        In the UK, elderly care relies on community practitioners. We analyze regional differences at the MSOA scale in England by examining the employee density in human health and social work activities (supply) and the population density of individuals over 65 years old (demand). By dividing supply by demand, we identify areas where elderly care services are imbalanced, highlighting regions with insufficient or oversupplied services for targeted improvements.
+                    </p>
+                    <a href="https://fry222.github.io/analysis_supply_demand.html" target="_blank">
+                        <button class="explore-more">Explore More</button>
+                    </a>
+                </div>
+            </div>
         </div>
-        
-      
-    <div class="row mb-5">
-      <!-- Chart container -->
-      <div class="col-12 col-md-10 offset-md-1 chart-container">
-        <div class="flourish-embed flourish-chart" data-src="visualisation/17958464"><script src="https://public.flourish.studio/resources/embed.js"></script></div>
-    </div>
-        </div>
-        
-      
-      <div class="row mb-5">
-      <!-- Chart container -->
-      <div class="col-12 col-md-10 offset-md-1 chart-container">
-        <div class="flourish-embed flourish-chart" data-src="visualisation/17945328"><script src="https://public.flourish.studio/resources/embed.js"></script></div>
-      </div>
-    </div>
-       <div class="row mb-5"></div>
-        <div class="row">
-
-          <div class="col-lg-8 order-1 order-lg-2 text-centerx" data-aos="zoom-in" data-aos-delay="100">
-            <img src="assets/img/analysis.gif" class="img-fluid" alt="">
-          </div>
-
-          <div class="col-lg-4 order-2 order-lg-1 mt-3 mt-lg-0">
-            <h3>Supply and Demand Map</h3>
-            <p>
-               In the UK, elderly care relies on community practitioners. We analyze regional differences at the MSOA scale in England by examining the employee density in human health and social work activities (supply) and the population density of individuals over 65 years old (demand). By dividing supply by demand, we identify areas where elderly care services are imbalanced, highlighting regions with insufficient or oversupplied services for targeted improvements.
-            </p>
-              <a href="https://fry222.github.io/asd.html" target="_blank">
-             <button class="explore-more">Explore More</button>
-            </a>
-            
-          </div>
-    </div>
-      </div>
-  </section>
+    </section>
       
       <!-- End Analysis -->
       
@@ -410,18 +410,18 @@ function updateChart(year) {
           <p>Interactive map</p>
         </div>
          <div class="row">
-        <div class="col-lg-4 order-1 order-lg-2 mt-3 mt-lg-0">
+        <div class="col-lg-4 order-1 order-lg-2 mt-3 mt-lg-0 content">
             <p>
              In the future, elderly care will shift from passive to active engagement, necessitating more interactive and convenient solutions. Manchester, with the highest supply of relevant practitioners in England, was chosen for a case study and interactive map implementation. We categorized Manchester's infrastructure into shopping, green spaces, dining, healthcare, and cultural facilities, calculating accessibility within 5, 10, and 15-minute walking distances for the elderly. Seniors can enter their location on the map to see nearby infrastructure within these time frames, helping them plan their activities and access essential services more easily. This approach aims to empower the elderly to actively seek the help and amenities they need.
             </p>
-             <a href="https://fry222.github.io/testpoi.html" target="_blank">
+             <a href="https://fry222.github.io/isochrone.html" target="_blank">
              <button class="explore-more">Explore More</button>
             </a>
             
           </div>
                
           <div class="col-lg-8 order-2 order-lg-1 text-center" data-aos="zoom-in" data-aos-delay="100">
-            <img src="assets/img/inter.gif" class="img-fluid" alt="">
+            <img src="assets/img/inter-1.gif" class="img-fluid" alt="">
           </div>
              
           </div>
@@ -506,23 +506,27 @@ function updateChart(year) {
           <p>Reference</p>
         </div>
          <div class="row">
-        <div class="col-lg-12 text-center mt-3 mt-lg-0">
+        <div class="col-lg-12 mt-3 mt-lg-0">
+             <p>
+              Caring.com, 2023. What Are Continuing Care Retirement Communities? [online] Caring.com. Available at: <a href="https://www.caring.com/senior-living/continuing-care-retirement-communities/" target="_blank">https://www.caring.com/senior-living/continuing-care-retirement-communities/</a> [Accessed 8 May 2024].
+            </p>
             <p>
-             Caring.com, 2023. What Are Continuing Care Retirement Communities? [online] Caring.com. Available at: https://www.caring.com/senior-living/continuing-care-retirement-communities/ [Accessed 8 May 2024].
- 
-             Dixon，J.(2021) Integrated Care Systems Architecture of an ICS and the OD challenge. [PowerPoint presentation] Available at: https://s3.eu-west-2.amazonaws.com/crstl-assets/nscs/files/An-Integrated-Care-System-outine-and-OD-challenges-Norfolk-and-Waveney-ICS.pdf
-
-
-             Hayashi, M. (2015) ‘Japan’s Long-Term Care Policy for Older People: The Emergence of Innovative ‘Mobilisation’ Initiatives Following the 2005 Reforms’,  Journal of Aging Studies, vol. 33, pp. 11–21. DOI:https://doi.org/10.1016/j.jaging.2015.02.004.
- 
-
-             Milliman, 2023. An introduction to continuing care retirement communities. [online] Available at: https://us.milliman.com/en/insight/an-introduction-to-continuing-care-retirement-communities [Accessed 8 May 2024].
-
-             Sano, J. et al.（2023）’An overview of systems for providing integrated and comprehensive care for older people in Japan’, Arch Public Health , 81 (2023). DOI: https://doi.org/10.1186/s13690-023-01076-5.
-
-             Sheng, X. & Settles, B. H. (2006) ‘ Intergenerational Relationships and Elderly Care in China: A Global Perspective’, Current sociology. [Online] 54 (2), 293–313.DOI： https://doi.org/10.1177/0011392106056747.
- 
-             Szczepura, A. et al. (2023). ‘Integrated Long-Term Care 'Neighbourhoods' to Support Older Populations: Evolving Strategies in Japan and England’, International journal of environmental research and public health, 20(14), 6352. DOI: https://doi.org/10.3390/ijerph20146352.
+              Dixon，J.(2021) Integrated Care Systems Architecture of an ICS and the OD challenge. [PowerPoint presentation] Available at: <a href="https://s3.eu-west-2.amazonaws.com/crstl-assets/nscs/files/An-Integrated-Care-System-outine-and-OD-challenges-Norfolk-and-Waveney-ICS.pdf" target="_blank">https://s3.eu-west-2.amazonaws.com/crstl-assets/nscs/files/An-Integrated-Care-System-outine-and-OD-challenges-Norfolk-and-Waveney-ICS.pdf</a>
+            </p>
+            <p>
+              Hayashi, M. (2015) ‘Japan’s Long-Term Care Policy for Older People: The Emergence of Innovative ‘Mobilisation’ Initiatives Following the 2005 Reforms’, Journal of Aging Studies, vol. 33, pp. 11–21. DOI: <a href="https://doi.org/10.1016/j.jaging.2015.02.004" target="_blank">https://doi.org/10.1016/j.jaging.2015.02.004</a>.
+            </p>
+            <p>
+              Milliman, 2023. An introduction to continuing care retirement communities. [online] Available at: <a href="https://us.milliman.com/en/insight/an-introduction-to-continuing-care-retirement-communities" target="_blank">https://us.milliman.com/en/insight/an-introduction-to-continuing-care-retirement-communities</a> [Accessed 8 May 2024].
+            </p>
+            <p>
+              Sano, J. et al.（2023）’An overview of systems for providing integrated and comprehensive care for older people in Japan’, Arch Public Health , 81 (2023). DOI: <a href="https://doi.org/10.1186/s13690-023-01076-5" target="_blank">https://doi.org/10.1186/s13690-023-01076-5</a>.
+            </p>
+            <p>
+              Sheng, X. & Settles, B. H. (2006) ‘ Intergenerational Relationships and Elderly Care in China: A Global Perspective’, Current sociology. [Online] 54 (2), 293–313. DOI: <a href="https://doi.org/10.1177/0011392106056747" target="_blank">https://doi.org/10.1177/0011392106056747</a>.
+            </p>
+            <p>
+              Szczepura, A. et al. (2023). ‘Integrated Long-Term Care 'Neighbourhoods' to Support Older Populations: Evolving Strategies in Japan and England’, International journal of environmental research and public health, 20(14), 6352. DOI: <a href="https://doi.org/10.3390/ijerph20146352" target="_blank">https://doi.org/10.3390/ijerph20146352</a>.
             </p>
           </div>
       </div>
@@ -547,6 +551,7 @@ function updateChart(year) {
               <div class="member-info">
                 <h4>Jialong Dong</h4>
                 <span>Technology and Visualization Manager</span>
+                <span>Email: 380996012@qq.com</span>
               </div>
             </div>
           </div>
@@ -557,6 +562,7 @@ function updateChart(year) {
               <div class="member-info">
                 <h4>Mingyuan Zhao</h4>
                 <span>Data and Structure Manager</span>
+                <span>Email: 602551101@qq.com</span>
               </div>
             </div>
           </div>
@@ -567,6 +573,7 @@ function updateChart(year) {
               <div class="member-info">
                 <h4>Hanzhi Yang</h4>
                 <span>Design and Research Manager</span>
+                <span>Email: yanghanzhi200102@88.com</span>
               </div>
             </div>
           </div>
