@@ -6,7 +6,7 @@
     <meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no" />
     <link href="https://api.mapbox.com/mapbox-gl-js/v3.0.1/mapbox-gl.css" rel="stylesheet">
     <script src="https://api.mapbox.com/mapbox-gl-js/v3.0.1/mapbox-gl.js"></script>
-    <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,300i,400,400i,600,600i,700,700i|Raleway:300,300i,400,400i,500,500i,600,600i,700,700i|Poppins:300,300i,400,400i,500,500i,600,600i,700,700i" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,300i,400,400i,600,600i,700,700i|Raleway:300,300i,400,400i,500,500i,600,600i,700,700i" rel="stylesheet">
     <script src="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v5.0.0/mapbox-gl-geocoder.min.js"></script>
     <link rel="stylesheet" href="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v5.0.0/mapbox-gl-geocoder.css" type="text/css">
     <style>
@@ -103,8 +103,9 @@
          geocoder.query('M1 4AJ');
         
              function fetchAndDisplayIsochrones(coordinates) {
-            ['5', '10', '15'].forEach(function(minutes) {
-                var url = `https://api.mapbox.com/isochrone/v1/mapbox/walking/${coordinates.join(',')}?contours_minutes=${minutes}&polygons=true&access_token=${mapboxgl.accessToken}`;
+            [5, 10, 15].forEach(function(minutes) {
+                var adjustedMinutes = minutes * 0.8;
+                var url = `https://api.mapbox.com/isochrone/v1/mapbox/walking/${coordinates.join(',')}?contours_minutes=${adjustedMinutes}&polygons=true&access_token=${mapboxgl.accessToken}`;
                 fetch(url)
                 .then(response => response.json())
                 .then(data => {
