@@ -149,7 +149,11 @@
 
  
         <script>
+<<<<<<< HEAD
  const dataByYear = {}; 
+=======
+ const dataByYear = {}; // 全局存储按年份分类的数据
+>>>>>>> fbad074be23a144968a0a50875ce0b9d32d665b5
          const worldDataByYear = {}; 
         document.addEventListener('DOMContentLoaded', function() {
             fetch('https://raw.githubusercontent.com/fry222/first1/main/data2.csv').then(response => {
@@ -189,18 +193,31 @@
 
         function processExcelData(data) {
             data.forEach(item => {
+<<<<<<< HEAD
                  const excludedAreas = ["Monaco", "Isle of Man", "Guernsey", "Jersey","Saint Helena","Bonaire, Sint Eustatius and Saba","Martinique","Sint Maarten (Dutch part)"];
                 const year = item.Year;
                 const percentage = parseFloat(item["65+"]);
+=======
+                const year = item.Year;
+                const percentage = parseFloat(item["65+"]);
+
+                if (item.Type === "Country/Area") {
+                    const country = item["Region, subregion, country or area"];
+>>>>>>> fbad074be23a144968a0a50875ce0b9d32d665b5
 
                 if (item.Type === "Country/Area") {
                     const country = item["Region, subregion, country or area"];
                      if (!excludedAreas.includes(country)){
                     if (!dataByYear[year]) dataByYear[year] = [];
                     dataByYear[year].push({ country, percentage });
+<<<<<<< HEAD
                      }
                 } else if (item.Type === "World") {
                     worldDataByYear[year] = percentage; 
+=======
+                } else if (item.Type === "World") {
+                    worldDataByYear[year] = percentage; // 保存World数据
+>>>>>>> fbad074be23a144968a0a50875ce0b9d32d665b5
                 }
             });
 
@@ -210,12 +227,23 @@
             });
         }
 
+<<<<<<< HEAD
 
 const colorMapping = {}; 
 
 const colors = ["#012a4a","#013a63","#01497c","#014f86","#2a6f97","#2c7da0","#468faf","#61a5c2","#89c2d9","#a9d6e5","#0466c8","#0353a4","#023e7d","#002855","#001845","#001233","#33415c","#5c677d","#7d8597","#979dac" ];
 
 function getRandomColor() {
+=======
+
+const colorMapping = {}; // 存储每个国家的颜色映射
+
+// 定义一个简单的颜色范围，你可以自行修改颜色
+const colors = ['#f3dcfe', '#e5b4fd', '#cb5df1', '#b333e9', '#6910a8', '#8cdfed', '#00b4d8', '#0096c7', '#023e8a','#0077b6','#00b4d8','#48cae4','#90e0ef' ];
+
+function getRandomColor() {
+    // 随机选择一个颜色 
+>>>>>>> fbad074be23a144968a0a50875ce0b9d32d665b5
     return colors[Math.floor(Math.random() * colors.length)];
 }
 
@@ -272,8 +300,13 @@ function updateChart(year) {
                 enabled: true 
             },
             title: {
+<<<<<<< HEAD
                 display: true,
                 text: `Top 10 Countries by Population Aged 65+ Percentage from 1950 to 2021`, 
+=======
+                display: true, // 显示标题
+                text: `Top 10 Countries by Population Aged 65+ Percentage from 1950 to 2021`, // 标题文本
+>>>>>>> fbad074be23a144968a0a50875ce0b9d32d665b5
                 font: {
                     size: 20 
                 },
