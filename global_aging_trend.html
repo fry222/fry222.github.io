@@ -47,10 +47,17 @@
             margin-top: 10px;
         }
         .legend-item {
+<<<<<<< HEAD
             margin-bottom: 4px;
             line-height: 0.6; 
             display: flex;
             align-items: center; 
+=======
+            margin-bottom: 4px; /* 减少条目间的垂直距离 */
+            line-height: 0.6; /* 减少行高以使行间距更紧凑 */
+            display: flex;
+            align-items: center; /* 确保图例颜色块和文本对齐 */
+>>>>>>> 664f5bace5f7655a51ea5e450ce59a9c06765f61
         }
         .legend-color {
             width: 15px;
@@ -58,6 +65,7 @@
             display: inline-block;
         }
         h2 {
+<<<<<<< HEAD
             margin-top: 10px;    
             margin-bottom: 5px; 
             line-height: 1.1;  
@@ -72,6 +80,22 @@
             color: #333; 
             margin: 0 0 0 0; 
             text-align: center; 
+=======
+            margin-top: 10px;    /* 减少上边距 */
+            margin-bottom: 5px;  /* 减少下边距，可根据需要进一步调整 */
+            line-height: 1.1;    /* 减少行高以减小空白区域 */
+            font-weight: bold;
+            text-align: left;
+            font-size: 1em;      /* 可以调整字体大小以适应设计 */
+            padding: 0;          /* 确保没有内边距 */
+        }
+        h1 {
+            font-size: 25px; /* 设置较大的字体大小 */
+            font-weight: bold; /* 字体加粗 */
+            color: #333; /* 字体颜色，可根据实际设计调整 */
+            margin: 0 0 0 0; /* 调整上下边距，确保标题与其他元素间的空间 */
+            text-align: center; /* 标题左对齐 */
+>>>>>>> 664f5bace5f7655a51ea5e450ce59a9c06765f61
         }
         .instructions {
             font-size: 0.9em;
@@ -117,6 +141,7 @@
 
     <script>
 
+<<<<<<< HEAD
          var map = L.map('map', {
              zoomControl: false,
             center: [15, 0], 
@@ -124,6 +149,18 @@
             crs: L.CRS.EPSG4326 
         });
         
+=======
+
+        // 初始化地图
+         var map = L.map('map', {
+             zoomControl: false,
+            center: [15, 0], // 设置初始中心点
+            zoom: 1.5, // 设置初始缩放级别
+            crs: L.CRS.EPSG4326 // 使用等面积投影
+        });
+
+        // 添加图层
+>>>>>>> 664f5bace5f7655a51ea5e450ce59a9c06765f61
         L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}', {
             attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, ' +
                          'Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
@@ -135,6 +172,10 @@
         }).addTo(map);
         
  
+<<<<<<< HEAD
+=======
+        // 添加缩放控件
+>>>>>>> 664f5bace5f7655a51ea5e450ce59a9c06765f61
         L.control.zoom({
             position: 'topright'
         }).addTo(map);
