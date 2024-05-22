@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Ageing Population Data Visualization</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,300i,400,400i,600,600i,700,700i|Raleway:300,300i,400,400i,500,500i,600,600i,700,700i|Poppins:300,300i,400,400i,500,500i,600,600i,700,700i" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
+    <style>
+        body { font-family: Raleway, sans-serif; margin: 0; padding: 0; }
+        .container { width: 80%; margin: 20px auto; }
+        canvas { width: 100%; max-width: 800px; }
+        .slider { width: 50%; margin: 20px auto; }
+        #yearDisplay {
+    display: none; 
+}
+    </style>
+</head>
+<body>
+    <div class="container">
+        <canvas id="myChart"></canvas>
+        <input type="range" min="1950" max="2021" value="1950" class="slider" id="yearSlider">
+        <span id="yearDisplay"></span>
+    </div>
+
+    <script>
+        const dataByYear = {}; 
+         const worldDataByYear = {}; 
+        document.addEventListener('DOMContentLoaded', function() {
+            fetch('https://raw.githubusercontent.com/fry222/first1/main/data2.csv').then(response => {
+                if (!response.ok) throw new Error('Network response was not ok');
+                return response.text();
+            })
+            .then(data => {
+                const jsonData = Papa.parse(data, {
+                    header: true,
+                    dynamicTyping: true
+                }).data;
+                processExcelData(jsonData);
+                updateChart(1950); 
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+
+            let currentYear = 1950;
+            const intervalId = setInterval(() => {
+                if (currentYear > 2021) {
+                    currentYear = 1950;
+                } else {
+                    document.getElementById('yearSlider').value = currentYear;
+                    document.getElementById('yearDisplay').textContent = currentYear;
+                    updateChart(currentYear);
+                    currentYear++;
+                }
+            }, 250);
+
+            document.getElementById('yearSlider').addEventListener('input', function() {
+                clearInterval(intervalId);
+                updateChart(this.value);
+                document.getElementById('yearDisplay').textContent = this.value;
+            });
+        });
+
+        function processExcelData(data) {
+            data.forEach(item => {
+                 const excludedAreas = ["Monaco", "Isle of Man", "Guernsey", "Jersey","Saint Helena","Bonaire, Sint Eustatius and Saba","Martinique","Sint Maarten (Dutch part)"];
+                const year = item.Year;
+                const percentage = parseFloat(item["65+"]);
+
+                if (item.Type === "Country/Area") {
+                    const country = item["Region, subregion, country or area"];
+                     if (!excludedAreas.includes(country)){
+                    if (!dataByYear[year]) dataByYear[year] = [];
+                    dataByYear[year].push({ country, percentage });
+                     }
+                } else if (item.Type === "World") {
+                    worldDataByYear[year] = percentage; 
+                }
+            });
+
+            Object.keys(dataByYear).forEach(year => {
+                dataByYear[year].sort((a, b) => b.percentage - a.percentage);
+                dataByYear[year] = dataByYear[year].slice(0, 10); 
+            });
+        }
+
+
+const colorMapping = {}; 
+
+const colors = ["#012a4a","#013a63","#01497c","#014f86","#2a6f97","#2c7da0","#468faf","#61a5c2","#89c2d9","#a9d6e5","#0466c8","#0353a4","#023e7d","#002855","#001845","#001233","#33415c","#5c677d","#7d8597","#979dac" ];
+
+function getRandomColor() { 
+    return colors[Math.floor(Math.random() * colors.length)];
+}
+
+function ensureColor(country) {
+    if (!colorMapping[country]) {
+        colorMapping[country] = getRandomColor(); 
+    }
+    return colorMapping[country];
+}
+
+function updateChart(year) {
+    const ctx = document.getElementById('myChart').getContext('2d');
+    const chartData = {
+        labels: dataByYear[year].map(item => item.country),
+        datasets: [{
+            label: `Percentage of Population Aged 65+ in ${year}`,
+            data: dataByYear[year].map(item => item.percentage),
+            backgroundColor: dataByYear[year].map(item => ensureColor(item.country)), 
+            borderColor: dataByYear[year].map(item => ensureColor(item.country)), 
+            borderWidth: 1
+        }]
+    };
+
+    if (window.myBarChart) {
+        window.myBarChart.destroy();
+    }
+   window.myBarChart = new Chart(ctx, {
+    type: 'bar',
+    data: chartData,
+    options: {
+        animation: {
+            duration: 0 
+        },
+        indexAxis: 'y', 
+        scales: {
+            x: {
+                beginAtZero: true, 
+                suggestedMax: 35, 
+                ticks: {
+                    callback: function(value) {
+                        return `${value}%`; 
+}
+}
+            },
+            y: {
+                display: false
+            }
+        },
+        plugins: {
+            legend: {
+                display: false 
+            },
+            tooltip: {
+                enabled: true 
+            },
+            title: {
+                display: true, 
+                text: `Top 10 Countries by Population Aged 65+ Percentage from 1950 to 2021`, 
+                font: {
+                    size: 20 
+                },
+                padding: {
+                    top: 10, 
+                    bottom: 10
+                },
+                align: 'center'
+            }
+        }
+    },
+        plugins: [{
+            id: 'textLabels',
+            afterDraw: chart => {
+                const ctx = chart.ctx;
+                ctx.font = '12px Raleway';
+                ctx.fillStyle = 'black';
+                ctx.textAlign = 'left';
+                ctx.textBaseline = 'middle';
+                chart.data.datasets.forEach((dataset, i) => {
+                    const meta = chart.getDatasetMeta(i);
+                    meta.data.forEach((bar, index) => {
+                        const label = chart.data.labels[index];
+                        const labelX = bar.x + 5;
+                        const labelY = bar.y;
+                        ctx.fillText(label, labelX, labelY);
+                    });
+                });
+                ctx.font = 'bold 40px Raleway';
+                ctx.fillStyle = 'gray';
+                ctx.textAlign = 'right';
+                ctx.textBaseline = 'bottom';
+                const chartWidth = chart.width;
+                const chartHeight = chart.height;
+                ctx.fillText(` ${year}`, chartWidth - 100, chartHeight - 100);
+                
+                 ctx.font = 'bold 16px Raleway';
+                ctx.fillStyle = 'gray';
+                ctx.textAlign = 'right';
+                ctx.textBaseline = 'bottom';
+                const chartWidth1 = chart.width;
+                const chartHeight1 = chart.height;
+                ctx.fillText(`World Average Percentage: ${worldDataByYear[year]}`, chartWidth1 - 50, chartHeight1 - 60);
+            }
+        }]
+    });
+  
+}
+
+    </script>
+</body>
+</html>
