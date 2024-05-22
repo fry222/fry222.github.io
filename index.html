@@ -36,7 +36,6 @@
     
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     
-    <!-- 引用 Papa Parse 用于解析 CSV -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
 
   <!-- =======================================================
@@ -65,7 +64,7 @@
           <li><a class="nav-link scrollto" href="#example">Care Model Examples</a></li>
           <li><a class="nav-link scrollto " href="#analysis">Demand and Supply Analysis</a></li>
           <li><a class="nav-link scrollto" href="#POI">Interactive map</a></li>
-          <li><a class="nav-link scrollto" href="#future">About Future</a></li>
+          <li><a class="nav-link scrollto" href="#future">Conclusion</a></li>
         </ul>
         <i class="bi bi-list mobile-nav-toggle"></i>
       </nav><!-- .navbar -->
@@ -77,7 +76,7 @@
   <section id="hero">
     <div class="hero-container" data-aos="fade-up" data-aos-delay="150">
       <h1>Future Silver</h1>
-      <h2>Focusing on global aging and advocate the construction of age-friendly cities in the future</h2>
+      <h2>Focusing on global aging and advocating the construction of age-friendly cities in the future</h2>
       <div class="d-flex">
         <a href="#Intr" class="btn-get-started scrollto">Get Started</a>
       </div>
@@ -150,7 +149,7 @@
 
  
         <script>
- const dataByYear = {}; // 全局存储按年份分类的数据
+ const dataByYear = {}; 
          const worldDataByYear = {}; 
         document.addEventListener('DOMContentLoaded', function() {
             fetch('https://raw.githubusercontent.com/fry222/first1/main/data2.csv').then(response => {
@@ -163,7 +162,7 @@
                     dynamicTyping: true
                 }).data;
                 processExcelData(jsonData);
-                updateChart(1950); // 初始显示1950年的数据
+                updateChart(1950); 
             })
             .catch(error => {
                 console.error('Error:', error);
@@ -190,39 +189,39 @@
 
         function processExcelData(data) {
             data.forEach(item => {
+                 const excludedAreas = ["Monaco", "Isle of Man", "Guernsey", "Jersey","Saint Helena","Bonaire, Sint Eustatius and Saba","Martinique","Sint Maarten (Dutch part)"];
                 const year = item.Year;
                 const percentage = parseFloat(item["65+"]);
 
                 if (item.Type === "Country/Area") {
                     const country = item["Region, subregion, country or area"];
-
+                     if (!excludedAreas.includes(country)){
                     if (!dataByYear[year]) dataByYear[year] = [];
                     dataByYear[year].push({ country, percentage });
+                     }
                 } else if (item.Type === "World") {
-                    worldDataByYear[year] = percentage; // 保存World数据
+                    worldDataByYear[year] = percentage; 
                 }
             });
 
             Object.keys(dataByYear).forEach(year => {
                 dataByYear[year].sort((a, b) => b.percentage - a.percentage);
-                dataByYear[year] = dataByYear[year].slice(0, 10); // 取百分比最高的前十个
+                dataByYear[year] = dataByYear[year].slice(0, 10); 
             });
         }
 
 
-const colorMapping = {}; // 存储每个国家的颜色映射
+const colorMapping = {}; 
 
-// 定义一个简单的颜色范围，你可以自行修改颜色
-const colors = ['#f3dcfe', '#e5b4fd', '#cb5df1', '#b333e9', '#6910a8', '#8cdfed', '#00b4d8', '#0096c7', '#023e8a','#0077b6','#00b4d8','#48cae4','#90e0ef' ];
+const colors = ["#012a4a","#013a63","#01497c","#014f86","#2a6f97","#2c7da0","#468faf","#61a5c2","#89c2d9","#a9d6e5","#0466c8","#0353a4","#023e7d","#002855","#001845","#001233","#33415c","#5c677d","#7d8597","#979dac" ];
 
 function getRandomColor() {
-    // 随机选择一个颜色 
     return colors[Math.floor(Math.random() * colors.length)];
 }
 
 function ensureColor(country) {
     if (!colorMapping[country]) {
-        colorMapping[country] = getRandomColor(); // 如果国家还没有颜色，生成一个新的
+        colorMapping[country] = getRandomColor(); 
     }
     return colorMapping[country];
 }
@@ -234,8 +233,8 @@ function updateChart(year) {
         datasets: [{
             label: `Percentage of Population Aged 65+ in ${year}`,
             data: dataByYear[year].map(item => item.percentage),
-            backgroundColor: dataByYear[year].map(item => ensureColor(item.country)), // 使用或生成颜色
-            borderColor: dataByYear[year].map(item => ensureColor(item.country)), // 边框使用相同颜色
+            backgroundColor: dataByYear[year].map(item => ensureColor(item.country)), 
+            borderColor: dataByYear[year].map(item => ensureColor(item.country)), 
             borderWidth: 1
         }]
     };
@@ -248,41 +247,41 @@ function updateChart(year) {
     data: chartData,
     options: {
         animation: {
-            duration: 0 // 禁用动画以使图表加载时无延迟
+            duration: 0 
         },
-        indexAxis: 'y', // 将条形图的索引轴设置为垂直
+        indexAxis: 'y', 
         scales: {
             x: {
-                beginAtZero: true, // x轴从0开始
-                suggestedMax: 40, // 建议x轴的最大值为40
+                beginAtZero: true, 
+                suggestedMax: 35, 
                 ticks: {
                     callback: function(value) {
-                        return `${value}%`; // 在X轴的每个刻度后加上百分号
+                        return `${value}%`; 
 }
 }
             },
             y: {
-                display: false // 不显示y轴标签
+                display: false 
             }
         },
         plugins: {
             legend: {
-                display: false // 隐藏图例
+                display: false
             },
             tooltip: {
-                enabled: true // 启用工具提示
+                enabled: true 
             },
             title: {
-                display: true, // 显示标题
-                text: `Top 10 Countries by Population Aged 65+ Percentage from 1950 to 2021`, // 标题文本
+                display: true,
+                text: `Top 10 Countries by Population Aged 65+ Percentage from 1950 to 2021`, 
                 font: {
-                    size: 20 // 标题字体大小
+                    size: 20 
                 },
                 padding: {
-                    top: 10, // 标题顶部间距
-                    bottom: 10 // 标题底部间距
+                    top: 10,
+                    bottom: 10 
                 },
-                align: 'center' // 标题居中对齐
+                align: 'center' 
             }
         }
     },
@@ -412,7 +411,7 @@ function updateChart(year) {
          <div class="row">
         <div class="col-lg-4 order-1 order-lg-2 mt-3 mt-lg-0 content">
             <p>
-             In the future, elderly care will shift from passive to active engagement, necessitating more interactive and convenient solutions. Manchester, with the highest supply of relevant practitioners in England, was chosen for a case study and interactive map implementation. We categorized Manchester's infrastructure into shopping, green spaces, dining, healthcare, and cultural facilities, calculating accessibility within 5, 10, and 15-minute walking distances for the elderly. Seniors can enter their location on the map to see nearby infrastructure within these time frames, helping them plan their activities and access essential services more easily. This approach aims to empower the elderly to actively seek the help and amenities they need.
+             As far as we know, Manchester, a senior city in the United Kingdom, has the greatest supply in all of England. In the future, elderly care will shift from passive to active engagement, necessitating more interactive and convenient solutions. Manchester, with the highest supply of relevant practitioners in England, was chosen for a case study and interactive map implementation. We categorized Manchester's infrastructure into shopping, green spaces, dining, healthcare, and cultural facilities, calculating accessibility within 5, 10, and 15-minute walking distances for the elderly. Seniors can enter their location on the map to see nearby infrastructure within these time frames, helping them plan their activities and access essential services more easily. This approach aims to empower the elderly to actively seek the help and amenities they need.
             </p>
              <a href="https://fry222.github.io/isochrone.html" target="_blank">
              <button class="explore-more">Explore More</button>
@@ -434,7 +433,7 @@ function updateChart(year) {
     <section id="future" class="testimonials">
       <div class="container" data-aos="zoom-in">
         <div class="section-title">
-          <p>About Future</p>
+          <p>Conclusion and Limitaion</p>
         </div>
 
         <div class="testimonials-slider swiper" data-aos="fade-up" data-aos-delay="100">
@@ -444,7 +443,7 @@ function updateChart(year) {
               <div class="testimonial-item">
                 <p>
                   <i class="bx bxs-quote-alt-left quote-icon-left"></i>
-                  The use of interactive maps and data tools will build a bridge between policymakers, healthcare providers, and community planners with the elderly.
+                 Aging does not mean disease and death. An aging society should also be dynamic and colorful. Through data and visual analysis, this project demonstrates the challenges of aging and helps people recognize the importance of the autonomy of older people in building age-friendly societies. The Manchester Age-Friendly Interactive Map is a valuable tool to guide and assist older people to better understand and navigate their surroundings, providing a replicable model for other cities. We hope that more people will be involved in the development of age-friendly tools in the future.
                   <i class="bx bxs-quote-alt-right quote-icon-right"></i>
                 </p>
               </div>
@@ -454,42 +453,11 @@ function updateChart(year) {
               <div class="testimonial-item">
                 <p>
                   <i class="bx bxs-quote-alt-left quote-icon-left"></i>
-                  Establishing global standards for age-friendly communities will ensure consistent and high-quality support for the elderly worldwide.
+                 For limitations, first, the statistical bar chart of country aging rankings all over the world only includes the past and not the future. Second, in the care model example section, we just selected 4 countries to explain their typical models, but there are also other countries and other models all over the world. Third, the supply analysis only considered individuals engaged in the Human Health and Social Work Activities sector. However, people working in industries such as transportation and food services also have indirect impacts on the aging population that are not taken into account on this map. Last, the elderly care service supply not only includes the infrastructures but also some related industry employees. Just 5 categories of infrastructure are not enough; maybe we could add more categories in the future, or even create a function to update POIs by users. In addition, we only show the major categories, not the subcategories. For example, “Culture Infrastructure” includes POIs from museums, theaters, art galleries, and so on. But all the specific tabs are not displayed on this map.
                   <i class="bx bxs-quote-alt-right quote-icon-right"></i>
                 </p>
               </div>
             </div><!-- End testimonial item -->
-
-            <div class="swiper-slide">
-              <div class="testimonial-item">
-                <p>
-                  <i class="bx bxs-quote-alt-left quote-icon-left"></i>
-                  Creating senior clubs enhances the quality of life for the elderly by providing social interaction, health, wellness activities, and fostering a sense of community and belonging.
-                  <i class="bx bxs-quote-alt-right quote-icon-right"></i>
-                </p>
-              </div>
-            </div><!-- End testimonial item -->
-
-            <div class="swiper-slide">
-              <div class="testimonial-item">
-                <p>
-                  <i class="bx bxs-quote-alt-left quote-icon-left"></i>
-                  The United Nations and the World Health Organization will play pivotal roles in coordinating global efforts to address the aging population.
-                  <i class="bx bxs-quote-alt-right quote-icon-right"></i>
-                </p>
-              </div>
-            </div><!-- End testimonial item -->
-
-            <div class="swiper-slide">
-              <div class="testimonial-item">
-                <p>
-                  <i class="bx bxs-quote-alt-left quote-icon-left"></i>
-                  Countries can collaborate on research, share technological innovations, and develop joint policies to manage the aging population effectively.
-                  <i class="bx bxs-quote-alt-right quote-icon-right"></i>
-                </p>
-              </div>
-            </div><!-- End testimonial item -->
-
           </div>
           <div class="swiper-pagination"></div>
         </div>

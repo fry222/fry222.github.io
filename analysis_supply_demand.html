@@ -40,7 +40,7 @@
             border-radius: 5px;
             display: flex;
             flex-direction: column;
-            align-items: flex-start; /* Aligns content to the left */
+            align-items: flex-start; 
         }
 
         #map { 
@@ -106,7 +106,7 @@
     top: 20px;
     right: 10px;
     width: 300px;
-    z-index: 1; /* 确保在地图之上 */
+    z-index: 1; 
 }
 
 
@@ -232,10 +232,10 @@
 
        geocoder.on('result', function(ev) {
     var coordinates = ev.result.geometry.coordinates;
-    // 使用 flyTo 方法动态设置地图的中心和缩放级别
+    
     map.flyTo({
         center: coordinates,
-        zoom: 14 // 指定缩放级别
+        zoom: 14 
     });
 
 });

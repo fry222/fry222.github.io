@@ -60,11 +60,11 @@
     <div class='map-overlay' id='geocoder'>
      <div id="search-hint">Select your location and see the walkable facilities</div></div>
     <script>
-        mapboxgl.accessToken = 'pk.eyJ1IjoibWl5YXpoYW8yNSIsImEiOiJjbHI3cjc1YXAyZ20yMmxwbm04OWltYnhzIn0.EdP5hXTxL3xl60hc6eWVIA'; // Replace YOUR_ACCESS_TOKEN with your Mapbox access token
+        mapboxgl.accessToken = 'pk.eyJ1IjoibWl5YXpoYW8yNSIsImEiOiJjbHI3cjc1YXAyZ20yMmxwbm04OWltYnhzIn0.EdP5hXTxL3xl60hc6eWVIA'; 
         var map = new mapboxgl.Map({
             container: 'map',
-            style: 'mapbox://styles/miyazhao25/clvqr9k2j01pr01qrbyxrg7rt', // Replace with your style URL if needed
-            center: [-2.4, 53.5], // Coordinates for Manchester
+            style: 'mapbox://styles/miyazhao25/clvqr9k2j01pr01qrbyxrg7rt', 
+            center: [-2.4, 53.5], 
             zoom: 9
         });
 
@@ -79,7 +79,6 @@
             }
         }
 
-        // Add the geocoder
         var geocoder = new MapboxGeocoder({
             accessToken: mapboxgl.accessToken,
             mapboxgl: mapboxgl,
@@ -91,13 +90,12 @@
 
        geocoder.on('result', function(ev) {
     var coordinates = ev.result.geometry.coordinates;
-    // 使用 flyTo 方法动态设置地图的中心和缩放级别
+
     map.flyTo({
         center: coordinates,
-        zoom: 14 // 指定缩放级别
+        zoom: 14 
     });
 
-    // 调用 fetchAndDisplayIsochrones 函数来显示等时线
     fetchAndDisplayIsochrones(coordinates);
 });
 

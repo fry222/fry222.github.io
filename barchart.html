@@ -3,10 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <title>Ageing Population Data Visualization</title>
-    <!-- 引用 Chart.js 3.x 版本 -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,300i,400,400i,600,600i,700,700i|Raleway:300,300i,400,400i,500,500i,600,600i,700,700i|Poppins:300,300i,400,400i,500,500i,600,600i,700,700i" rel="stylesheet">
-    <!-- 引用 Papa Parse 用于解析 CSV -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
     <style>
         body { font-family: Raleway, sans-serif; margin: 0; padding: 0; }
@@ -14,7 +12,7 @@
         canvas { width: 100%; max-width: 800px; }
         .slider { width: 50%; margin: 20px auto; }
         #yearDisplay {
-    display: none; /* 完全不显示，并且不保留位置 */
+    display: none; 
 }
     </style>
 </head>
@@ -26,7 +24,7 @@
     </div>
 
     <script>
-        const dataByYear = {}; // 全局存储按年份分类的数据
+        const dataByYear = {}; 
          const worldDataByYear = {}; 
         document.addEventListener('DOMContentLoaded', function() {
             fetch('https://raw.githubusercontent.com/fry222/first1/main/data2.csv').then(response => {
@@ -39,7 +37,7 @@
                     dynamicTyping: true
                 }).data;
                 processExcelData(jsonData);
-                updateChart(1950); // 初始显示1950年的数据
+                updateChart(1950); 
             })
             .catch(error => {
                 console.error('Error:', error);
@@ -66,39 +64,39 @@
 
         function processExcelData(data) {
             data.forEach(item => {
+                 const excludedAreas = ["Monaco", "Isle of Man", "Guernsey", "Jersey","Saint Helena","Bonaire, Sint Eustatius and Saba","Martinique","Sint Maarten (Dutch part)"];
                 const year = item.Year;
                 const percentage = parseFloat(item["65+"]);
 
                 if (item.Type === "Country/Area") {
                     const country = item["Region, subregion, country or area"];
-
+                     if (!excludedAreas.includes(country)){
                     if (!dataByYear[year]) dataByYear[year] = [];
                     dataByYear[year].push({ country, percentage });
+                     }
                 } else if (item.Type === "World") {
-                    worldDataByYear[year] = percentage; // 保存World数据
+                    worldDataByYear[year] = percentage; 
                 }
             });
 
             Object.keys(dataByYear).forEach(year => {
                 dataByYear[year].sort((a, b) => b.percentage - a.percentage);
-                dataByYear[year] = dataByYear[year].slice(0, 10); // 取百分比最高的前十个
+                dataByYear[year] = dataByYear[year].slice(0, 10); 
             });
         }
 
 
-const colorMapping = {}; // 存储每个国家的颜色映射
+const colorMapping = {}; 
 
-// 定义一个简单的颜色范围，你可以自行修改颜色
-const colors = ['#f3dcfe', '#e5b4fd', '#cb5df1', '#b333e9', '#6910a8', '#8cdfed', '#00b4d8', '#0096c7', '#023e8a','#0077b6','#00b4d8','#48cae4','#90e0ef' ];
+const colors = ["#012a4a","#013a63","#01497c","#014f86","#2a6f97","#2c7da0","#468faf","#61a5c2","#89c2d9","#a9d6e5","#0466c8","#0353a4","#023e7d","#002855","#001845","#001233","#33415c","#5c677d","#7d8597","#979dac" ];
 
-function getRandomColor() {
-    // 随机选择一个颜色 
+function getRandomColor() { 
     return colors[Math.floor(Math.random() * colors.length)];
 }
 
 function ensureColor(country) {
     if (!colorMapping[country]) {
-        colorMapping[country] = getRandomColor(); // 如果国家还没有颜色，生成一个新的
+        colorMapping[country] = getRandomColor(); 
     }
     return colorMapping[country];
 }
@@ -110,8 +108,8 @@ function updateChart(year) {
         datasets: [{
             label: `Percentage of Population Aged 65+ in ${year}`,
             data: dataByYear[year].map(item => item.percentage),
-            backgroundColor: dataByYear[year].map(item => ensureColor(item.country)), // 使用或生成颜色
-            borderColor: dataByYear[year].map(item => ensureColor(item.country)), // 边框使用相同颜色
+            backgroundColor: dataByYear[year].map(item => ensureColor(item.country)), 
+            borderColor: dataByYear[year].map(item => ensureColor(item.country)), 
             borderWidth: 1
         }]
     };
@@ -124,41 +122,41 @@ function updateChart(year) {
     data: chartData,
     options: {
         animation: {
-            duration: 0 // 禁用动画以使图表加载时无延迟
+            duration: 0 
         },
-        indexAxis: 'y', // 将条形图的索引轴设置为垂直
+        indexAxis: 'y', 
         scales: {
             x: {
-                beginAtZero: true, // x轴从0开始
-                suggestedMax: 40, // 建议x轴的最大值为40
+                beginAtZero: true, 
+                suggestedMax: 35, 
                 ticks: {
                     callback: function(value) {
-                        return `${value}%`; // 在X轴的每个刻度后加上百分号
+                        return `${value}%`; 
 }
 }
             },
             y: {
-                display: false // 不显示y轴标签
+                display: false
             }
         },
         plugins: {
             legend: {
-                display: false // 隐藏图例
+                display: false 
             },
             tooltip: {
-                enabled: true // 启用工具提示
+                enabled: true 
             },
             title: {
-                display: true, // 显示标题
-                text: `Top 10 Countries by Population Aged 65+ Percentage from 1950 to 2021`, // 标题文本
+                display: true, 
+                text: `Top 10 Countries by Population Aged 65+ Percentage from 1950 to 2021`, 
                 font: {
-                    size: 20 // 标题字体大小
+                    size: 20 
                 },
                 padding: {
-                    top: 10, // 标题顶部间距
-                    bottom: 10 // 标题底部间距
+                    top: 10, 
+                    bottom: 10
                 },
-                align: 'center' // 标题居中对齐
+                align: 'center'
             }
         }
     },

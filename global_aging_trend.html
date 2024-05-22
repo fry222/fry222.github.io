@@ -28,7 +28,7 @@
             border-radius: 5px;
             display: flex;
             flex-direction: column;
-            align-items: flex-start; /* Aligns content to the left */
+            align-items: flex-start;
         }
         #slider-container {
             width: 100%;
@@ -46,34 +46,33 @@
         #legend {
             margin-top: 10px;
         }
-          .legend-item {
-        margin-bottom: 4px; /* 减少条目间的垂直距离 */
-        line-height: 0.6; /* 减少行高以使行间距更紧凑 */
-        display: flex;
-        align-items: center; /* 确保图例颜色块和文本对齐 */
-    }
+        .legend-item {
+            margin-bottom: 4px;
+            line-height: 0.6; 
+            display: flex;
+            align-items: center; 
+        }
         .legend-color {
             width: 15px;
             height: 15px;
             display: inline-block;
         }
-
-       h2 {
-    margin-top: 10px;    /* 减少上边距 */
-    margin-bottom: 5px;  /* 减少下边距，可根据需要进一步调整 */
-    line-height: 1.1;    /* 减少行高以减小空白区域 */
-    font-weight: bold;
-    text-align: left;
-    font-size: 1em;      /* 可以调整字体大小以适应设计 */
-    padding: 0;          /* 确保没有内边距 */
-}
+        h2 {
+            margin-top: 10px;    
+            margin-bottom: 5px; 
+            line-height: 1.1;  
+            font-weight: bold;
+            text-align: left;
+            font-size: 1em;      
+            padding: 0;          
+        }
         h1 {
-        font-size: 25px; /* 设置较大的字体大小 */
-        font-weight: bold; /* 字体加粗 */
-        color: #333; /* 字体颜色，可根据实际设计调整 */
-        margin: 0 0 0 0; /* 调整上下边距，确保标题与其他元素间的空间 */
-        text-align: center; /* 标题左对齐 */
-    }
+            font-size: 25px; 
+            font-weight: bold; 
+            color: #333; 
+            margin: 0 0 0 0; 
+            text-align: center; 
+        }
         .instructions {
             font-size: 0.9em;
             text-align: left;
@@ -91,7 +90,7 @@
     <div id="map"></div>
     <div id="control-panel">
         <h1>Global Aging Trends</h1>
-         <p class="instructions">Use the slider to view population aging data for different years. Click on any country on the map to view a detailed age changing chart.</p>
+        <p class="instructions">Use the slider to view population aging data for different years. Click on any country on the map to view a detailed age changing chart.</p>
         <div id="slider-container">
             <input type="range" id="slider" min="2022" max="2050" step="1" value="2022">
             <span id="year-display">2022</span>
@@ -113,27 +112,35 @@
             <div><span class="legend-color" style="background-color: #CAF0F8;"></span> 0% - 4%</div>
             <div><span class="legend-color" style="background-color: #fff;"></span> No data </div>
         </div>
-       <p class="resource">Resource: <a href="https://population.un.org/wpp/Download/Standard/Population/" target="_blank">United Nations</a></p>
+        <p class="resource">Resource: <a href="https://population.un.org/wpp/Download/Standard/Population/" target="_blank">United Nations</a></p>
     </div>
 
-     <script>
-       var map = L.map('map',{zoomControl: false}).setView([20, 0], 2);
+    <script>
 
-L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}', {
-    attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, ' +
-                 'Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
-    maxZoom: 18,
-    id: 'fry2/clw0xh2cg02di01qr781bgsjv/draft', // Mapbox地图样式ID
-    tileSize: 512,
-    zoomOffset: -1,
-    accessToken: 'pk.eyJ1IjoiZnJ5MiIsImEiOiJjbHI3cjY5Z24ybWVvMnB0M251NGJjeTVtIn0.2-gnSomGndcSXg-G3dJlmw' // 替换为你的Mapbox Access Token
-}).addTo(map);
-L.control.zoom({
-     position: 'topright'
-}).addTo(map);
+         var map = L.map('map', {
+             zoomControl: false,
+            center: [15, 0], 
+            zoom: 1.5,
+            crs: L.CRS.EPSG4326 
+        });
+        
+        L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}', {
+            attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, ' +
+                         'Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
+            maxZoom: 18,
+            id: 'fry2/clw0xh2cg02di01qr781bgsjv.html', 
+            tileSize: 512,
+            zoomOffset: -1,
+            accessToken: 'pk.eyJ1IjoiZnJ5MiIsImEiOiJjbHI3cjY5Z24ybWVvMnB0M251NGJjeTVtIn0.2-gnSomGndcSXg-G3dJlmw'
+        }).addTo(map);
+        
+ 
+        L.control.zoom({
+            position: 'topright'
+        }).addTo(map);
+
         var currentLayer;
         var populationData = {};
-         
 
         Papa.parse("https://raw.githubusercontent.com/fry222/first1/main/data3.csv", {
             download: true,
@@ -242,7 +249,7 @@ L.control.zoom({
                 },
                 options: {
                     responsive: true,
-        maintainAspectRatio: false,
+                    maintainAspectRatio: false,
                     scales: {
                         y: {
                             beginAtZero: true
